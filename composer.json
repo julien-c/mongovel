@@ -1,6 +1,7 @@
 {
     "name": "julien-c/mongovel",
-    "description": "",
+    "description": "A Laravel-ish wrapper to the PHP Mongo driver",
+    "keywords": ["laravel", "mongo", "mongodb"],
     "authors": [
         {
             "name": "Julien Chaumond",
