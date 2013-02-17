@@ -1,4 +1,4 @@
-<?php namespace JulienC\Mongovel;
+<?php namespace Mongovel;
 
 use Illuminate\Support\ServiceProvider;
 
