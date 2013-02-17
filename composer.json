@@ -1,0 +1,23 @@
+{
+    "name": "julien-c/mongovel",
+    "description": "",
+    "authors": [
+        {
+            "name": "Julien Chaumond",
+            "email": "chaumond@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+        "illuminate/support": "4.0.x"
+    },
+    "autoload": {
+        "classmap": [
+            "src/migrations"
+        ],
+        "psr-0": {
+            "JulienC\\Mongovel": "src/"
+        }
+    },
+    "minimum-stability": "dev"
+}
