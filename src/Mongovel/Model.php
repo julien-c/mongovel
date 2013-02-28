@@ -1,7 +1,12 @@
-<?php namespace Mongovel;
+<?php 
 
-class Model {
-	
+namespace Mongovel;
+
+use MongoId;
+
+
+class Model
+{	
 	/**
 	 * Collection name
 	 *
@@ -9,7 +14,14 @@ class Model {
 	 *
 	 * @var null
 	 */
-	public static $collection = null;
+	public static $collectionName = null;
+	
+	/**
+	 * The model's Mongo collection
+	 *
+	 * @var MongoCollection
+	 */
+	public $collection;
 	
 	/**
 	 * The model's attributes.
@@ -21,9 +33,12 @@ class Model {
 	
 	public function __construct()
 	{
-		if (is_null(static::$collection)) {	
-			static::$collection = strtolower(get_called_class());
+		if (is_null(static::$collectionName)) {	
+			static::$collectionName = strtolower(get_called_class());
 		}
+		
+		$db = (new DB)->db;
+		$this->collection = $db->{static::$collectionName};
 	}
 	
 	
@@ -35,12 +50,10 @@ class Model {
 		
 		$instance = new $model;
 		
-		$m = new \MongoClient();
-		$collection = $m->reaaad->book;
+		$result = $instance->collection->findOne(array('_id' => new MongoId($p)));
 		
-		$result = call_user_func_array(array($collection, 'findOne'), array(array('_id' => new \MongoId($p))));
-		// var_dump($result);
 		$instance->attributes = $result;
+		
 		return $instance;
 	}
 	
@@ -49,15 +62,26 @@ class Model {
 	{
 		$model = get_called_class();
 		
-		var_dump($method);
+		$instance = new $model;
 		
-		var_dump($parameters);
-		
-		$m = new \MongoClient();
-		$collection = $m->reaaad->book;
-		var_dump($collection);
-		
-		return call_user_func_array(array($collection, $method), $parameters);
+		return call_user_func_array(array($instance->collection, $method), $parameters);
 	}
+	
+	
+	////////////////////////////////////////////////////////////////////
+	/////////////////////////// MAGIC METHODS //////////////////////////
+	////////////////////////////////////////////////////////////////////
+	
+	
+	public function __get($key)
+	{
+		if ($key === 'id') {
+			return (string) $this->attributes['_id'];
+		}
+		if (array_key_exists($key, $this->attributes)) {
+			return $this->attributes[$key];
+		}
+	}
+	
 }
 
