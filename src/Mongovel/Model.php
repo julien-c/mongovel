@@ -24,7 +24,8 @@ class Model
 	public $collection;
 	
 	/**
-	 * The model's attributes.
+	 * The model's attributes, e.g. the result from 
+	 * a MongoCollection::findOne() call.
 	 *
 	 * @var array
 	 */
@@ -43,14 +44,20 @@ class Model
 	
 	
 	
-	
-	public static function findOne($p)
+	/**
+	 * findOne is a specific flavour of __callStatic (cf. below in Magic Methods)
+	 * that returns an instance of the model populated with data from Mongo 
+	 * @param  [type] $parameters
+	 * @return [type]
+	 */
+	public static function findOne($parameters)
 	{
-		$model = get_called_class();
+		$parameters = $this->handleParameters($parameters);
 		
+		$model = get_called_class();
 		$instance = new $model;
 		
-		$result = $instance->collection->findOne(array('_id' => new MongoId($p)));
+		$result = $instance->collection->findOne($parameters);
 		
 		$instance->attributes = $result;
 		
@@ -58,19 +65,21 @@ class Model
 	}
 	
 	
-	public static function __callStatic($method, $parameters)
-	{
-		$model = get_called_class();
-		
-		$instance = new $model;
-		
-		return call_user_func_array(array($instance->collection, $method), $parameters);
-	}
-	
 	
 	////////////////////////////////////////////////////////////////////
 	/////////////////////////// MAGIC METHODS //////////////////////////
 	////////////////////////////////////////////////////////////////////
+	
+	
+	public static function __callStatic($method, $parameters)
+	{
+		$parameters = $this->handleParameters($parameters);
+		
+		$model = get_called_class();
+		$instance = new $model;
+		
+		return call_user_func_array(array($instance->collection, $method), $parameters);
+	}
 	
 	
 	public function __get($key)
@@ -80,6 +89,24 @@ class Model
 		}
 		if (array_key_exists($key, $this->attributes)) {
 			return $this->attributes[$key];
+		}
+	}
+	
+	////////////////////////////////////////////////////////////////////
+	////////////////////////////// HELPERS /////////////////////////////
+	////////////////////////////////////////////////////////////////////
+	
+	public function handleParameters($parameters)
+	{
+		if (is_string($parameters)) {
+			// Assume it's a MongoId
+			return array('_id' => new MongoId($parameters));
+		}
+		else if ($parameters instanceof MongoId) {
+			return array('_id' => $parameters);
+		}
+		else {
+			return $parameters;
 		}
 	}
 	
