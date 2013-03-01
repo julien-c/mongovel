@@ -2,6 +2,7 @@
     "name": "julien-c/mongovel",
     "description": "A Laravel-ish wrapper to the PHP Mongo driver",
     "keywords": ["laravel", "mongo", "mongodb", "Laravel 4"],
+    "type": "library",
     "license": "MIT",
     "authors": [
         {
