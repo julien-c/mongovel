@@ -3,7 +3,7 @@
 namespace Mongovel;
 
 use MongoId;
-
+use Illuminate\Support\Str;
 
 class Model
 {	
@@ -35,7 +35,7 @@ class Model
 	public function __construct()
 	{
 		if (is_null(static::$collectionName)) {	
-			static::$collectionName = strtolower(get_called_class());
+			static::$collectionName = strtolower(Str::plural(get_called_class()));
 		}
 		
 		$db = (new DB)->db;
@@ -87,6 +87,7 @@ class Model
 		if ($key === 'id') {
 			return (string) $this->attributes['_id'];
 		}
+
 		if (array_key_exists($key, $this->attributes)) {
 			return $this->attributes[$key];
 		}
