@@ -52,7 +52,7 @@ class Model
 	 */
 	public static function findOne($parameters)
 	{
-		$parameters = $this->handleParameters($parameters);
+		$parameters = static::handleParameters($parameters);
 		
 		$model = get_called_class();
 		$instance = new $model;
@@ -73,7 +73,7 @@ class Model
 	
 	public static function __callStatic($method, $parameters)
 	{
-		$parameters = $this->handleParameters($parameters);
+		$parameters = static::handleParameters($parameters);
 		
 		$model = get_called_class();
 		$instance = new $model;
@@ -96,7 +96,7 @@ class Model
 	////////////////////////////// HELPERS /////////////////////////////
 	////////////////////////////////////////////////////////////////////
 	
-	public function handleParameters($parameters)
+	public static function handleParameters($parameters)
 	{
 		if (is_string($parameters)) {
 			// Assume it's a MongoId
