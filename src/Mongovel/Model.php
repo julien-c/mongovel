@@ -31,32 +31,28 @@ class Model
 	 */
 	public $attributes = array();
 	
-	
+	/**
+	 * Create a new model instance
+	 */
 	public function __construct()
 	{
-		if (is_null(static::$collectionName)) {	
-			static::$collectionName = strtolower(Str::plural(get_called_class()));
-		}
-		
 		$db = (new DB)->db;
-		$this->collection = $db->{static::$collectionName};
+		$this->collection = $db->{static::getCollectionName()};
 	}
 	
 	
-	
 	/**
-	 * findOne is a specific flavour of __callStatic (cf. below in Magic Methods)
-	 * that returns an instance of the model populated with data from Mongo 
-	 * @param  [type] $parameters
-	 * @return [type]
+	 * Returns an instance of the model populated with data from Mongo
+	 *
+	 * @param array $parameters 
+	 *
+	 * @return Model 
 	 */
 	public static function findOne($parameters)
 	{
 		$parameters = static::handleParameters($parameters);
 		
-		$model = get_called_class();
-		$instance = new $model;
-		
+		$instance = static::getDummyInstance();
 		$result = $instance->collection->findOne($parameters);
 		
 		$instance->attributes = $result;
@@ -65,23 +61,35 @@ class Model
 	}
 	
 	
-	
 	////////////////////////////////////////////////////////////////////
 	/////////////////////////// MAGIC METHODS //////////////////////////
 	////////////////////////////////////////////////////////////////////
 	
-	
+	/**
+	 * Dispatches static calls on the model to a dummy instance
+	 *
+	 * @param string $method
+	 * @param array  $parameters
+	 *
+	 * @return MongoCollection
+	 */
 	public static function __callStatic($method, $parameters)
 	{
 		$parameters = static::handleParameters($parameters);
 		
-		$model = get_called_class();
-		$instance = new $model;
+		// Create a new dummy instance
+		$instance = static::getDummyInstance();
 		
 		return call_user_func_array(array($instance->collection, $method), $parameters);
 	}
 	
-	
+	/**
+	 * Get an attribute from the model
+	 *
+	 * @param string $key The attribute
+	 *
+	 * @return mixed
+	 */
 	public function __get($key)
 	{
 		if ($key === 'id') {
@@ -97,18 +105,51 @@ class Model
 	////////////////////////////// HELPERS /////////////////////////////
 	////////////////////////////////////////////////////////////////////
 	
+	/**
+	 * Get a dummy instance of the model
+	 *
+	 * @return mixed
+	 */
+	protected static function getDummyInstance()
+	{
+		$model = get_called_class();
+
+		return new $model;
+	}
+
+	/**
+	 * Get the collection name of the model
+	 *
+	 * @return string
+	 */
+	protected static function getCollectionName()
+	{
+		if (is_null(static::$collectionName)) {
+			$collectionName = Str::plural(get_called_class());
+			static::$collectionName = strtolower($collectionName);
+		}
+
+		return static::$collectionName;
+	}
+
+	/**
+	 * Magically handles MongoIds when passed as strings or objects
+	 *
+	 * @param string|array|MongoId $parameters An array of parameters or a MongoId (string/object)
+	 *
+	 * @return array
+	 */
 	public static function handleParameters($parameters)
 	{
+		// Assume it's a MongoId
 		if (is_string($parameters)) {
-			// Assume it's a MongoId
 			return array('_id' => new MongoId($parameters));
 		}
 		else if ($parameters instanceof MongoId) {
 			return array('_id' => $parameters);
 		}
-		else {
-			return $parameters;
-		}
+
+		return $parameters;
 	}
 	
 }
