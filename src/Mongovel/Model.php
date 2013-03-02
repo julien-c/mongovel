@@ -1,12 +1,12 @@
-<?php 
-
+<?php
 namespace Mongovel;
 
-use MongoId;
 use Illuminate\Support\Str;
+use MongoCursor;
+use MongoId;
 
 class Model
-{	
+{
 	/**
 	 * Collection name
 	 *
@@ -24,7 +24,7 @@ class Model
 	public $collection;
 	
 	/**
-	 * The model's attributes, e.g. the result from 
+	 * The model's attributes, e.g. the result from
 	 * a MongoCollection::findOne() call.
 	 *
 	 * @var array
@@ -44,16 +44,17 @@ class Model
 	/**
 	 * Returns an instance of the model populated with data from Mongo
 	 *
-	 * @param array $parameters 
+	 * @param array $parameters
 	 *
-	 * @return Model 
+	 * @return Model
 	 */
 	public static function findOne($parameters)
 	{
 		$parameters = static::handleParameters($parameters);
 		
+		// Create a new dummy instance
 		$instance = static::getDummyInstance();
-		$result = $instance->collection->findOne($parameters);
+		$results = $instance->collection->findOne($parameters);
 		
 		$instance->attributes = $result;
 		
@@ -75,12 +76,15 @@ class Model
 	 */
 	public static function __callStatic($method, $parameters)
 	{
-		$parameters = static::handleParameters($parameters);
-		
+		$parameters[0] = static::handleParameters($parameters[0]);
 		// Create a new dummy instance
 		$instance = static::getDummyInstance();
-		
-		return call_user_func_array(array($instance->collection, $method), $parameters);
+
+		// Convert results if possible
+		$results = call_user_func_array(array($instance->collection, $method), $parameters);
+		if ($results instanceof MongoCursor) $results = new Cursor($results);
+
+		return $results;
 	}
 	
 	/**
@@ -104,7 +108,7 @@ class Model
 	////////////////////////////////////////////////////////////////////
 	////////////////////////////// HELPERS /////////////////////////////
 	////////////////////////////////////////////////////////////////////
-	
+
 	/**
 	 * Get a dummy instance of the model
 	 *
@@ -124,10 +128,8 @@ class Model
 	 */
 	protected static function getCollectionName()
 	{
-		if (is_null(static::$collectionName)) {
-			$collectionName = Str::plural(get_called_class());
-			static::$collectionName = strtolower($collectionName);
-		}
+		$collectionName = Str::plural(get_called_class());
+		static::$collectionName = strtolower($collectionName);
 
 		return static::$collectionName;
 	}
