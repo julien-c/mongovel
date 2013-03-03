@@ -1,7 +1,9 @@
 <?php
 namespace Mongovel;
 
+use Illuminate\Support\Str;
 use JsonSerializable;
+use MongoCollection;
 use MongoCursor;
 
 /**
@@ -23,7 +25,7 @@ class Model extends Mongovel implements JsonSerializable
 	 *
 	 * @var MongoCollection
 	 */
-	public $collection;
+	public static $collection;
 
 	/**
 	 * The model's attributes, e.g. the result from
@@ -45,9 +47,25 @@ class Model extends Mongovel implements JsonSerializable
 	 */
 	public function __construct($attributes = array())
 	{
-		$db = (new DB)->db;
-		$this->collection = $db->{static::getCollectionName()};
 		$this->attributes = $attributes;
+	}
+
+	/**
+	 * Get the Model's collection
+	 *
+	 * @return MongoCollection
+	 */
+	public function getCollection()
+	{
+		if (!static::$collection) {
+			$collectionName = Str::plural(get_called_class());
+			$collectionName = strtolower($collectionName);
+
+			$db = (new DB)->db;
+			static::$collection = $db->$collectionName;
+		}
+
+		return static::$collection;
 	}
 
 	/**
@@ -79,7 +97,7 @@ class Model extends Mongovel implements JsonSerializable
 		if ($parameters) $parameters[0] = static::handleParameters($parameters[0]);
 
 		// Convert results if possible
-		$results = call_user_func_array(array(static::getCollection(), $method), $parameters);
+		$results = call_user_func_array(array(static::getModelCollection(), $method), $parameters);
 		if ($results instanceof MongoCursor) $results = new Cursor($results, get_called_class());
 
 		return $results;
@@ -156,9 +174,9 @@ class Model extends Mongovel implements JsonSerializable
 	 *
 	 * @return MongoCollection
 	 */
-	protected static function getCollection()
+	protected static function getModelCollection()
 	{
-		return static::getModelInstance()->collection;
+		return static::$collection ?: static::getModelInstance()->getCollection();
 	}
 
 }

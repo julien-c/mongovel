@@ -15,6 +15,9 @@
         "ext-mongo": "*",
         "illuminate/support": "4.0.x"
     },
+    "require-dev": {
+        "mockery/mockery": "dev-master"
+    },
     "autoload": {
         "psr-0": {
             "Mongovel": "src/"

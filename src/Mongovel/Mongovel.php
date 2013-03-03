@@ -1,11 +1,10 @@
 <?php
 namespace Mongovel;
 
-use Illuminate\Support\Str;
 use MongoId;
 
 /**
- * The base class implementing Eloquent-ier methods
+ * The base model class implementing Eloquent-ier methods
  */
 class Mongovel
 {
@@ -25,7 +24,7 @@ class Mongovel
 	{
 		$parameters = static::handleParameters($parameters);
 
-		$results = static::getCollection()->findOne($parameters);
+		$results = static::getModelCollection()->findOne($parameters);
 
 		return static::getModelInstance($results);
 	}
@@ -40,25 +39,12 @@ class Mongovel
 	{
 		$query = static::handleParameters($query);
 
-		return static::getCollection()->update($query, $update);
+		return static::getModelCollection()->update($query, $update);
 	}
 
 	////////////////////////////////////////////////////////////////////
 	////////////////////////////// HELPERS /////////////////////////////
 	////////////////////////////////////////////////////////////////////
-
-	/**
-	 * Get the collection name of the model
-	 *
-	 * @return string
-	 */
-	protected static function getCollectionName()
-	{
-		$collectionName = Str::plural(get_called_class());
-		static::$collectionName = strtolower($collectionName);
-
-		return static::$collectionName;
-	}
 
 	/**
 	 * Magically handles MongoIds when passed as strings or objects
