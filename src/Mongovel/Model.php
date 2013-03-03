@@ -131,4 +131,30 @@ class Model extends Mongovel implements JsonSerializable
 		}
 	}
 
+	////////////////////////////////////////////////////////////////////
+	////////////////////////////// HELPERS /////////////////////////////
+	////////////////////////////////////////////////////////////////////
+
+	/**
+	 * Get an instance of the model
+	 *
+	 * @return mixed
+	 */
+	protected static function getModelInstance($attributes = array())
+	{
+		$model = get_called_class();
+
+		return new $model($attributes);
+	}
+
+	/**
+	 * Get a Collection to work from
+	 *
+	 * @return MongoCollection
+	 */
+	protected static function getCollection()
+	{
+		return static::getModelInstance()->collection;
+	}
+
 }
