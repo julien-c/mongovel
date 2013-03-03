@@ -15,16 +15,6 @@ class Mongovel
 	////////////////////////////////////////////////////////////////////
 
 	/**
-	 * Eloquent-like alias for find
-	 *
-	 * @return Cursor
-	 */
-	public static function all()
-	{
-		return static::find();
-	}
-
-	/**
 	 * Returns an instance of the model populated with data from Mongo
 	 *
 	 * @param array $parameters
@@ -52,7 +42,6 @@ class Mongovel
 
 		return static::getCollection()->update($query, $update);
 	}
-
 	
 	////////////////////////////////////////////////////////////////////
 	////////////////////////////// HELPERS /////////////////////////////
@@ -100,7 +89,7 @@ class Mongovel
 	 *
 	 * @return array
 	 */
-	public static function handleParameters($parameters)
+	protected static function handleParameters($parameters)
 	{
 		// Assume it's a MongoId
 		if (is_string($parameters)) {
