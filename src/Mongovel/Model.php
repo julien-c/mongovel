@@ -61,8 +61,8 @@ class Model extends Mongovel implements JsonSerializable
 			$collectionName = Str::plural(get_called_class());
 			$collectionName = strtolower($collectionName);
 
-			$db = (new DB)->db;
-			static::$collection = $db->$collectionName;
+			$db = new DB;
+			static::$collection = $db->db->$collectionName;
 		}
 
 		return static::$collection;
