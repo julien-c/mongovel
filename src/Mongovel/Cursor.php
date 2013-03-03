@@ -1,10 +1,11 @@
 <?php
 namespace Mongovel;
 
+use Closure;
 use MongoCursor;
-use JsonSerializable;
+use Illuminate\Support\Collection;
 
-class Cursor implements JsonSerializable
+class Cursor extends Collection
 {
 	/**
 	 * The MongoCursor instance
@@ -12,6 +13,13 @@ class Cursor implements JsonSerializable
 	 * @var MongoCursor
 	 */
 	protected $cursor;
+
+	/**
+	 * The items
+	 *
+	 * @var array
+	 */
+	protected $items;
 
 	/**
 	 * The Mongovel class
@@ -29,6 +37,7 @@ class Cursor implements JsonSerializable
 	public function __construct(MongoCursor $cursor, $class = null)
 	{
 		$this->cursor = $cursor;
+		$this->items  = iterator_to_array($cursor);
 		$this->class  = $class;
 	}
 
@@ -45,44 +54,33 @@ class Cursor implements JsonSerializable
 		return call_user_func_array(array($this->cursor, $method), $parameters);
 	}
 
+	/**
+	 * Get the original MongoCursor
+	 *
+	 * @return MongoCursor
+	 */
+	public function getIterator()
+	{
+		return $this->cursor;
+	}
+
 	////////////////////////////////////////////////////////////////////
-	////////////////////////////// HELPERS /////////////////////////////
+	/////////////////////////// CURSOR METHODS /////////////////////////
 	////////////////////////////////////////////////////////////////////
 
 	/**
-	 * Applies a callback to the results
+	 * Count the number of items in the Cursor
 	 *
-	 * @param Callable $callback
-	 *
-	 * @return array
+	 * @return integer
 	 */
-	public function map($callable)
+	public function count()
 	{
-		$results = array();
-		foreach ($this->cursor as $key => $value) {
-			$results[$key] = $callable($value, $key);
-		}
-
-		return $results;
+		return $this->cursor->count();
 	}
 
 	////////////////////////////////////////////////////////////////////
 	/////////////////////////// SERIALIZATION //////////////////////////
 	////////////////////////////////////////////////////////////////////
-
-	/**
-	 * Convert results to an array
-	 *
-	 * @return array
-	 */
-	public function toArray()
-	{
-		$class = $this->class;
-
-		return $this->map(function($value) use ($class) {
-			return $class::create($value)->toArray();
-		});
-	}
 
 	/**
 	 * Convert results to a filtered array
@@ -94,21 +92,10 @@ class Cursor implements JsonSerializable
 	public function toArrayFiltered($hidden = array())
 	{
 		$class = $this->class;
-
-		return $this->map(function($value) use ($hidden, $class) {
-			$model = $class::create($value)->toArray();
+		return $this->map(function($model) use ($hidden, $class) {
+			$model = $class::create($model)->toArray();
 
 			return array_diff_key($model, array_flip($hidden));
 		});
-	}
-
-	/**
-	 * Transforms the cursor to a string
-	 *
-	 * @return string
-	 */
-	public function jsonSerialize()
-	{
-		return $this->toArray();
 	}
 }
