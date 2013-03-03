@@ -2,10 +2,11 @@
 namespace Mongovel;
 
 use Illuminate\Support\Str;
+use JsonSerializable;
 use MongoCursor;
 use MongoId;
 
-class Model
+class Model implements JsonSerializable
 {
 	/**
 	 * Collection name
@@ -30,16 +31,69 @@ class Model
 	 * @var array
 	 */
 	public $attributes = array();
+
+	/**
+	 * An array of fields to hide from serialization
+	 *
+	 * @var array
+	 */
+	protected $hidden = array();
 	
 	/**
 	 * Create a new model instance
 	 */
-	public function __construct()
+	public function __construct($attributes = array())
 	{
 		$db = (new DB)->db;
 		$this->collection = $db->{static::getCollectionName()};
+		$this->attributes = $attributes;
+	}
+
+	/**
+	 * Static alias for model creation
+	 *
+	 * @param array $attributes
+	 *
+	 * @return Model
+	 */
+	public static function create($attributes = array())
+	{
+		return new static($attributes);
 	}
 	
+	/**
+	 * Eloquent-like alias for find
+	 *
+	 * @return Cursor
+	 */
+	public static function all()
+	{
+		return static::find();
+	}
+
+	/**
+	 * Transforms the Model to an array
+	 *
+	 * @return array
+	 */
+	public function toArray()
+	{
+		$attributes = array_diff_key($this->attributes, array_flip($this->hidden));
+		$attributes['id'] = (string) $attributes['_id'];
+		unset($attributes['_id']);
+
+		return $attributes;
+	}
+
+  /**
+   * Transforms the cursor to a string
+   *
+   * @return string
+   */
+  public function jsonSerialize()
+  {
+    return $this->toArray();
+  }
 	
 	/**
 	 * Returns an instance of the model populated with data from Mongo
@@ -56,7 +110,7 @@ class Model
 		$instance = static::getDummyInstance();
 		$results = $instance->collection->findOne($parameters);
 		
-		$instance->attributes = $result;
+		$instance->attributes = $results;
 		
 		return $instance;
 	}
@@ -76,13 +130,14 @@ class Model
 	 */
 	public static function __callStatic($method, $parameters)
 	{
-		$parameters[0] = static::handleParameters($parameters[0]);
+		if ($parameters) $parameters[0] = static::handleParameters($parameters[0]);
+		
 		// Create a new dummy instance
 		$instance = static::getDummyInstance();
 
 		// Convert results if possible
 		$results = call_user_func_array(array($instance->collection, $method), $parameters);
-		if ($results instanceof MongoCursor) $results = new Cursor($results);
+		if ($results instanceof MongoCursor) $results = new Cursor($results, get_called_class());
 
 		return $results;
 	}

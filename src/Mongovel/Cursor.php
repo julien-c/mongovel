@@ -2,8 +2,9 @@
 namespace Mongovel;
 
 use MongoCursor;
+use JsonSerializable;
 
-class Cursor
+class Cursor implements JsonSerializable
 {
   /**
    * The MongoCursor instance
@@ -13,13 +14,22 @@ class Cursor
   protected $cursor;
 
   /**
+   * The Mongovel class
+   *
+   * @var string
+   */
+  protected $class;
+
+  /**
    * Create a new Mongovel Cursor instance
    *
-   * @param MongoCursor $cursor [description]
+   * @param MongoCursor $cursor
+   * @param Model       $class  The class the Cursor originated from
    */
-  public function __construct(MongoCursor $cursor)
+  public function __construct(MongoCursor $cursor, $class = null)
   {
     $this->cursor = $cursor;
+    $this->class  = $class;
   }
 
   /**
@@ -40,18 +50,6 @@ class Cursor
   ////////////////////////////////////////////////////////////////////
 
   /**
-   * Convert results to an array
-   *
-   * @return array
-   */
-  public function toArray()
-  {
-    return $this->map(function($value) {
-      return $value;
-    });
-  }
-
-  /**
    * Applies a callback to the results
    *
    * @param Callable $callback
@@ -66,5 +64,51 @@ class Cursor
     }
 
     return $results;
+  }
+
+  ////////////////////////////////////////////////////////////////////
+  /////////////////////////// SERIALIZATION //////////////////////////
+  ////////////////////////////////////////////////////////////////////
+
+  /**
+   * Convert results to an array
+   *
+   * @return array
+   */
+  public function toArray()
+  {
+    $class = $this->class;
+
+    return $this->map(function($value) use ($hidden, $class) {
+      return $class::create($value)->toArray();
+    });
+  }
+
+  /**
+   * Convert results to a filtered array
+   *
+   * @param array $hidden An array of fields to omit
+   *
+   * @return array
+   */
+  public function toArrayFiltered($hidden = array())
+  {
+    $class = $this->class;
+
+    return $this->map(function($value) use ($hidden, $class) {
+      $model = $class::create($value)->toArray();
+
+      return array_diff_key($model, array_flip($hidden));
+    });
+  }
+
+  /**
+   * Transforms the cursor to a string
+   *
+   * @return string
+   */
+  public function jsonSerialize()
+  {
+    return $this->toArray();
   }
 }
