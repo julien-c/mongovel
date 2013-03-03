@@ -1,12 +1,10 @@
 <?php
 namespace Mongovel;
 
-use Illuminate\Support\Str;
 use JsonSerializable;
 use MongoCursor;
-use MongoId;
 
-class Model implements JsonSerializable
+class Model extends Mongovel implements JsonSerializable
 {
 	/**
 	 * Collection name
@@ -60,16 +58,6 @@ class Model implements JsonSerializable
 	{
 		return new static($attributes);
 	}
-	
-	/**
-	 * Eloquent-like alias for find
-	 *
-	 * @return Cursor
-	 */
-	public static function all()
-	{
-		return static::find();
-	}
 
 	/**
 	 * Transforms the Model to an array
@@ -79,40 +67,24 @@ class Model implements JsonSerializable
 	public function toArray()
 	{
 		$attributes = array_diff_key($this->attributes, array_flip($this->hidden));
-		$attributes['id'] = (string) $attributes['_id'];
-		unset($attributes['_id']);
+
+		// Transform _id to id if existing
+		if (isset($attributes['_id'])) {
+			$attributes['id'] = (string) $attributes['_id'];
+			unset($attributes['_id']);
+		}
 
 		return $attributes;
 	}
 
-  /**
-   * Transforms the cursor to a string
-   *
-   * @return string
-   */
-  public function jsonSerialize()
-  {
-    return $this->toArray();
-  }
-	
 	/**
-	 * Returns an instance of the model populated with data from Mongo
+	 * Transforms the cursor to a string
 	 *
-	 * @param array $parameters
-	 *
-	 * @return Model
+	 * @return string
 	 */
-	public static function findOne($parameters)
+	public function jsonSerialize()
 	{
-		$parameters = static::handleParameters($parameters);
-		
-		// Create a new dummy instance
-		$instance = static::getDummyInstance();
-		$results = $instance->collection->findOne($parameters);
-		
-		$instance->attributes = $results;
-		
-		return $instance;
+		return $this->toArray();
 	}
 	
 	
@@ -132,11 +104,8 @@ class Model implements JsonSerializable
 	{
 		if ($parameters) $parameters[0] = static::handleParameters($parameters[0]);
 		
-		// Create a new dummy instance
-		$instance = static::getDummyInstance();
-
 		// Convert results if possible
-		$results = call_user_func_array(array($instance->collection, $method), $parameters);
+		$results = call_user_func_array(array(static::getCollection(), $method), $parameters);
 		if ($results instanceof MongoCursor) $results = new Cursor($results, get_called_class());
 
 		return $results;
@@ -158,55 +127,6 @@ class Model implements JsonSerializable
 		if (array_key_exists($key, $this->attributes)) {
 			return $this->attributes[$key];
 		}
-	}
-	
-	////////////////////////////////////////////////////////////////////
-	////////////////////////////// HELPERS /////////////////////////////
-	////////////////////////////////////////////////////////////////////
-
-	/**
-	 * Get a dummy instance of the model
-	 *
-	 * @return mixed
-	 */
-	protected static function getDummyInstance()
-	{
-		$model = get_called_class();
-
-		return new $model;
-	}
-
-	/**
-	 * Get the collection name of the model
-	 *
-	 * @return string
-	 */
-	protected static function getCollectionName()
-	{
-		$collectionName = Str::plural(get_called_class());
-		static::$collectionName = strtolower($collectionName);
-
-		return static::$collectionName;
-	}
-
-	/**
-	 * Magically handles MongoIds when passed as strings or objects
-	 *
-	 * @param string|array|MongoId $parameters An array of parameters or a MongoId (string/object)
-	 *
-	 * @return array
-	 */
-	public static function handleParameters($parameters)
-	{
-		// Assume it's a MongoId
-		if (is_string($parameters)) {
-			return array('_id' => new MongoId($parameters));
-		}
-		else if ($parameters instanceof MongoId) {
-			return array('_id' => $parameters);
-		}
-
-		return $parameters;
 	}
 	
 }

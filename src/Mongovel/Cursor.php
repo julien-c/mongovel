@@ -79,7 +79,7 @@ class Cursor implements JsonSerializable
   {
     $class = $this->class;
 
-    return $this->map(function($value) use ($hidden, $class) {
+    return $this->map(function($value) use ($class) {
       return $class::create($value)->toArray();
     });
   }
