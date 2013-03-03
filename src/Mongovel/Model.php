@@ -62,34 +62,6 @@ class Model extends Mongovel implements JsonSerializable
 		return new static($attributes);
 	}
 
-	/**
-	 * Transforms the Model to an array
-	 *
-	 * @return array
-	 */
-	public function toArray()
-	{
-		$attributes = array_diff_key($this->attributes, array_flip($this->hidden));
-
-		// Transform _id to id if existing
-		if (isset($attributes['_id'])) {
-			$attributes['id'] = (string) $attributes['_id'];
-			unset($attributes['_id']);
-		}
-
-		return $attributes;
-	}
-
-	/**
-	 * Transforms the cursor to a string
-	 *
-	 * @return string
-	 */
-	public function jsonSerialize()
-	{
-		return $this->toArray();
-	}
-
 	////////////////////////////////////////////////////////////////////
 	/////////////////////////// MAGIC METHODS //////////////////////////
 	////////////////////////////////////////////////////////////////////
@@ -132,13 +104,45 @@ class Model extends Mongovel implements JsonSerializable
 	}
 
 	////////////////////////////////////////////////////////////////////
+	/////////////////////////// SERIALIZATION //////////////////////////
+	////////////////////////////////////////////////////////////////////
+
+	/**
+	 * Transforms the Model to an array
+	 *
+	 * @return array
+	 */
+	public function toArray()
+	{
+		$attributes = array_diff_key($this->attributes, array_flip($this->hidden));
+
+		// Transform _id to id if existing
+		if (isset($attributes['_id'])) {
+			$attributes['id'] = (string) $attributes['_id'];
+			unset($attributes['_id']);
+		}
+
+		return $attributes;
+	}
+
+	/**
+	 * Transforms the cursor to a string
+	 *
+	 * @return string
+	 */
+	public function jsonSerialize()
+	{
+		return $this->toArray();
+	}
+
+	////////////////////////////////////////////////////////////////////
 	////////////////////////////// HELPERS /////////////////////////////
 	////////////////////////////////////////////////////////////////////
 
 	/**
 	 * Get an instance of the model
 	 *
-	 * @return mixed
+	 * @return Model
 	 */
 	protected static function getModelInstance($attributes = array())
 	{
