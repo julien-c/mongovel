@@ -4,6 +4,9 @@ namespace Mongovel;
 use JsonSerializable;
 use MongoCursor;
 
+/**
+ * A Mongovel model
+ */
 class Model extends Mongovel implements JsonSerializable
 {
 	/**
@@ -14,14 +17,14 @@ class Model extends Mongovel implements JsonSerializable
 	 * @var null
 	 */
 	public static $collectionName = null;
-	
+
 	/**
 	 * The model's Mongo collection
 	 *
 	 * @var MongoCollection
 	 */
 	public $collection;
-	
+
 	/**
 	 * The model's attributes, e.g. the result from
 	 * a MongoCollection::findOne() call.
@@ -36,7 +39,7 @@ class Model extends Mongovel implements JsonSerializable
 	 * @var array
 	 */
 	protected $hidden = array();
-	
+
 	/**
 	 * Create a new model instance
 	 */
@@ -86,12 +89,11 @@ class Model extends Mongovel implements JsonSerializable
 	{
 		return $this->toArray();
 	}
-	
-	
+
 	////////////////////////////////////////////////////////////////////
 	/////////////////////////// MAGIC METHODS //////////////////////////
 	////////////////////////////////////////////////////////////////////
-	
+
 	/**
 	 * Dispatches static calls on the model to a dummy instance
 	 *
@@ -103,14 +105,14 @@ class Model extends Mongovel implements JsonSerializable
 	public static function __callStatic($method, $parameters)
 	{
 		if ($parameters) $parameters[0] = static::handleParameters($parameters[0]);
-		
+
 		// Convert results if possible
 		$results = call_user_func_array(array(static::getCollection(), $method), $parameters);
 		if ($results instanceof MongoCursor) $results = new Cursor($results, get_called_class());
 
 		return $results;
 	}
-	
+
 	/**
 	 * Get an attribute from the model
 	 *
@@ -128,6 +130,5 @@ class Model extends Mongovel implements JsonSerializable
 			return $this->attributes[$key];
 		}
 	}
-	
-}
 
+}

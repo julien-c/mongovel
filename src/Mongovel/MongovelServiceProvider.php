@@ -1,9 +1,10 @@
-<?php namespace Mongovel;
+<?php
+namespace Mongovel;
 
 use Illuminate\Support\ServiceProvider;
 
-class MongovelServiceProvider extends ServiceProvider {
-
+class MongovelServiceProvider extends ServiceProvider
+{
 	/**
 	 * Indicates if loading of the provider is deferred.
 	 *

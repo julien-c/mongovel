@@ -9,7 +9,7 @@ use MongoId;
  */
 class Mongovel
 {
-	
+
 	////////////////////////////////////////////////////////////////////
 	////////////////////////////// METHODS /////////////////////////////
 	////////////////////////////////////////////////////////////////////
@@ -24,9 +24,9 @@ class Mongovel
 	public static function findOne($parameters)
 	{
 		$parameters = static::handleParameters($parameters);
-		
+
 		$results = static::getCollection()->findOne($parameters);
-		
+
 		return static::getModelInstance($results);
 	}
 
@@ -42,7 +42,7 @@ class Mongovel
 
 		return static::getCollection()->update($query, $update);
 	}
-	
+
 	////////////////////////////////////////////////////////////////////
 	////////////////////////////// HELPERS /////////////////////////////
 	////////////////////////////////////////////////////////////////////
@@ -94,8 +94,7 @@ class Mongovel
 		// Assume it's a MongoId
 		if (is_string($parameters)) {
 			return array('_id' => new MongoId($parameters));
-		}
-		else if ($parameters instanceof MongoId) {
+		} elseif ($parameters instanceof MongoId) {
 			return array('_id' => $parameters);
 		}
 
