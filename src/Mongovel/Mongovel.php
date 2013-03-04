@@ -29,19 +29,6 @@ class Mongovel
 		return static::getModelInstance($results);
 	}
 
-	/**
-	 * Allows the passing of a string or a MongoId as query
-	 *
-	 * @param mixed $query
-	 * @param array $update
-	 */
-	public static function update($query, $update)
-	{
-		$query = static::handleParameters($query);
-
-		return static::getModelCollection()->update($query, $update);
-	}
-
 	////////////////////////////////////////////////////////////////////
 	////////////////////////////// HELPERS /////////////////////////////
 	////////////////////////////////////////////////////////////////////

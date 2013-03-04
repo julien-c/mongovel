@@ -94,6 +94,8 @@ class Model extends Mongovel implements JsonableInterface
 	 */
 	public static function __callStatic($method, $parameters)
 	{
+		if ($parameters) $parameters[0] = static::handleParameters($parameters[0]);
+
 		// Convert results if possible
 		$results = call_user_func_array(array(static::getModelCollection(), $method), $parameters);
 		if ($results instanceof MongoCursor) $results = new Cursor($results, get_called_class());
