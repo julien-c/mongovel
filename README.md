@@ -6,7 +6,7 @@ Most MongoDB packages for Laravel insist on abstracting away the PHP driver and 
 In that spirit, Mongovel is a **thin wrapper over the PHP driver that makes it more Eloquent-like**: 
 * you'll be able to **access models like objects**, not arrays
 * you'll get query results as **Laravel Collections**
-* and some more syntactic sugar, like Facade-inspired **static shortcuts** to make the whole experience more elegant. And remember, you always keep the full power of Mongo methods. We're sure you'll love it!
+* and some more syntactic sugar, like Facade-inspired **static shortcuts** to make the whole experience more elegant. And remember, you always keep the full power of Mongo methods, as Mongovel always proxies calls to the underlying MongoCollections and MongoCursors. We're sure you'll love it!
 
 ### Usage overview
 
