@@ -18,11 +18,18 @@ class ModelTest extends MongovelTests
 		$this->assertEquals('bar', $model->foo);
 	}
 
-	public function testCanTransformMongoId()
+	public function testCanGetMongoId()
 	{
-		$model = new DummyModel(array('_id' => 'foo'));
+		$model = new DummyModel(array('_id' => new MongoId('49a702d5450046d3d515d10d')));
 
-		$this->assertEquals('foo', $model->id);
+		$this->assertEquals(new MongoId('49a702d5450046d3d515d10d'), $model->_id);
+	}
+
+	public function testCanTransformMongoIdToStringRepresentation()
+	{
+		$model = new DummyModel(array('_id' => new MongoId('49a702d5450046d3d515d10d')));
+
+		$this->assertEquals('49a702d5450046d3d515d10d', $model->id);
 	}
 
 	public function testCanTransformToArray()
