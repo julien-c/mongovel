@@ -1,12 +1,16 @@
-<?php 
-
+<?php
 namespace Mongovel;
 
-use MongoId;
+use Illuminate\Support\Str;
+use JsonSerializable;
+use MongoCollection;
+use MongoCursor;
 
-
-class Model
-{	
+/**
+ * A Mongovel model
+ */
+class Model extends Mongovel implements JsonSerializable
+{
 	/**
 	 * Collection name
 	 *
@@ -15,100 +19,164 @@ class Model
 	 * @var null
 	 */
 	public static $collectionName = null;
-	
+
 	/**
 	 * The model's Mongo collection
 	 *
 	 * @var MongoCollection
 	 */
-	public $collection;
-	
+	public static $collection;
+
 	/**
-	 * The model's attributes, e.g. the result from 
+	 * The model's attributes, e.g. the result from
 	 * a MongoCollection::findOne() call.
 	 *
 	 * @var array
 	 */
 	public $attributes = array();
-	
-	
-	public function __construct()
-	{
-		if (is_null(static::$collectionName)) {	
-			static::$collectionName = strtolower(get_called_class());
-		}
-		
-		$db = (new DB)->db;
-		$this->collection = $db->{static::$collectionName};
-	}
-	
-	
-	
+
 	/**
-	 * findOne is a specific flavour of __callStatic (cf. below in Magic Methods)
-	 * that returns an instance of the model populated with data from Mongo 
-	 * @param  [type] $parameters
-	 * @return [type]
+	 * An array of fields to hide from serialization
+	 *
+	 * @var array
 	 */
-	public static function findOne($parameters)
+	protected $hidden = array();
+
+	/**
+	 * Create a new model instance
+	 */
+	public function __construct($attributes = array())
 	{
-		$parameters = $this->handleParameters($parameters);
-		
-		$model = get_called_class();
-		$instance = new $model;
-		
-		$result = $instance->collection->findOne($parameters);
-		
-		$instance->attributes = $result;
-		
-		return $instance;
+		$this->attributes = $attributes;
 	}
-	
-	
-	
+
+	/**
+	 * Get the Model's collection
+	 *
+	 * @return MongoCollection
+	 */
+	public function getCollection()
+	{
+		if (!static::$collection) {
+			$collectionName = Str::plural(get_called_class());
+			$collectionName = strtolower($collectionName);
+
+			$db = new DB;
+			static::$collection = $db->db->$collectionName;
+		}
+
+		return static::$collection;
+	}
+
+	/**
+	 * Static alias for model creation
+	 *
+	 * @param array $attributes
+	 *
+	 * @return Model
+	 */
+	public static function create($attributes = array())
+	{
+		return new static($attributes);
+	}
+
 	////////////////////////////////////////////////////////////////////
 	/////////////////////////// MAGIC METHODS //////////////////////////
 	////////////////////////////////////////////////////////////////////
-	
-	
+
+	/**
+	 * Dispatches static calls on the model to a dummy instance
+	 *
+	 * @param string $method
+	 * @param array  $parameters
+	 *
+	 * @return MongoCollection
+	 */
 	public static function __callStatic($method, $parameters)
 	{
-		$parameters = $this->handleParameters($parameters);
-		
-		$model = get_called_class();
-		$instance = new $model;
-		
-		return call_user_func_array(array($instance->collection, $method), $parameters);
+		if ($parameters) $parameters[0] = static::handleParameters($parameters[0]);
+
+		// Convert results if possible
+		$results = call_user_func_array(array(static::getModelCollection(), $method), $parameters);
+		if ($results instanceof MongoCursor) $results = new Cursor($results, get_called_class());
+
+		return $results;
 	}
-	
-	
+
+	/**
+	 * Get an attribute from the model
+	 *
+	 * @param string $key The attribute
+	 *
+	 * @return mixed
+	 */
 	public function __get($key)
 	{
 		if ($key === 'id') {
 			return (string) $this->attributes['_id'];
 		}
+
 		if (array_key_exists($key, $this->attributes)) {
 			return $this->attributes[$key];
 		}
 	}
-	
+
+	////////////////////////////////////////////////////////////////////
+	/////////////////////////// SERIALIZATION //////////////////////////
+	////////////////////////////////////////////////////////////////////
+
+	/**
+	 * Transforms the Model to an array
+	 *
+	 * @return array
+	 */
+	public function toArray()
+	{
+		$attributes = array_diff_key($this->attributes, array_flip($this->hidden));
+
+		// Transform _id to id if existing
+		if (isset($attributes['_id'])) {
+			$attributes['id'] = (string) $attributes['_id'];
+			unset($attributes['_id']);
+		}
+
+		return $attributes;
+	}
+
+	/**
+	 * Transforms the cursor to a string
+	 *
+	 * @return string
+	 */
+	public function jsonSerialize()
+	{
+		return $this->toArray();
+	}
+
 	////////////////////////////////////////////////////////////////////
 	////////////////////////////// HELPERS /////////////////////////////
 	////////////////////////////////////////////////////////////////////
-	
-	public function handleParameters($parameters)
-	{
-		if (is_string($parameters)) {
-			// Assume it's a MongoId
-			return array('_id' => new MongoId($parameters));
-		}
-		else if ($parameters instanceof MongoId) {
-			return array('_id' => $parameters);
-		}
-		else {
-			return $parameters;
-		}
-	}
-	
-}
 
+	/**
+	 * Get an instance of the model
+	 *
+	 * @return Model
+	 */
+	protected static function getModelInstance($attributes = array())
+	{
+		$model = get_called_class();
+
+		return new $model($attributes);
+	}
+
+	/**
+	 * Get a Collection to work from
+	 *
+	 * @return MongoCollection
+	 */
+	protected static function getModelCollection()
+	{
+		return static::$collection ?: static::getModelInstance()->getCollection();
+	}
+
+}
