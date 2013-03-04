@@ -4,7 +4,7 @@ include '_start.php';
 
 class ModelTest extends MongovelTests
 {
-	public function testCanStaticalyCreateModels()
+	public function testCanStaticallyCreateModels()
 	{
 		$model = DummyModel::create();
 
