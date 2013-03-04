@@ -97,9 +97,8 @@ class Cursor extends Collection
 	{
 		$class = $this->class;
 		return $this->map(function($model) use ($hidden, $class) {
-			$model = $class::create($model)->toArray();
 
-			return array_diff_key($model, array_flip($hidden));
+			return array_diff_key($model->toArray(), array_flip($hidden));
 		});
 	}
 }
