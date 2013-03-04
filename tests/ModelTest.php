@@ -46,11 +46,11 @@ class ModelTest extends MongovelTests
 		$this->assertEquals(array('foo' => 'bar'), $model->toArray());
 	}
 
-	public function testCanJsonifyWithToArray()
+	public function testCanJsonifyWithToJson()
 	{
 		$model = new DummyModel(array('hidden' => 'foo', 'foo' => 'bar'));
 
-		$this->assertEquals('{"foo":"bar"}', json_encode($model));
+		$this->assertEquals('{"foo":"bar"}', $model->toJson());
 	}
 
 	public function testCanCallMethodsOnTheCollection()
