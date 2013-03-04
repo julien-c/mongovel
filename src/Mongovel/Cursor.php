@@ -22,7 +22,7 @@ class Cursor extends Collection
 	protected $items;
 
 	/**
-	 * The Mongovel class
+	 * The Mongovel Model class
 	 *
 	 * @var string
 	 */
@@ -37,8 +37,12 @@ class Cursor extends Collection
 	public function __construct(MongoCursor $cursor, $class = null)
 	{
 		$this->cursor = $cursor;
-		$this->items  = iterator_to_array($cursor);
 		$this->class  = $class;
+		
+		$this->items = array();
+		foreach ($cursor as $item) {
+			$this->items[] = new $class($item);
+		}
 	}
 
 	/**
