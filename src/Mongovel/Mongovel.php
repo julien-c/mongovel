@@ -49,19 +49,19 @@ class Mongovel
 	/**
 	 * Magically handles MongoIds when passed as strings or objects
 	 *
-	 * @param string|array|MongoId $parameters An array of parameters or a MongoId (string/object)
+	 * @param string|array|MongoId $p An array of parameters or a MongoId (string/object)
 	 *
 	 * @return array
 	 */
-	protected static function handleParameters($parameters)
+	protected static function handleParameters($p)
 	{
 		// Assume it's a MongoId
-		if (is_string($parameters)) {
-			return array('_id' => new MongoId($parameters));
-		} elseif ($parameters instanceof MongoId) {
-			return array('_id' => $parameters);
+		if (is_string($p)) {
+			return array('_id' => new MongoId($p));
+		} elseif ($p instanceof MongoId) {
+			return array('_id' => $p);
 		}
 
-		return $parameters;
+		return $p;
 	}
 }
