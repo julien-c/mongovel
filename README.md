@@ -12,7 +12,7 @@ In that spirit, Mongovel is a thin wrapper over the PHP driver that makes it mor
 
 Enough talking, here's how to use Mongovel:
 
-`GET books/512ce86b98dee4a87a000000`:
+**`GET books/512ce86b98dee4a87a000000`**:
 
 ```php
 public function show($id)
@@ -21,6 +21,7 @@ public function show($id)
 	
 	// Here, you can access the book's attributes like in Eloquent:
 	// $book->title, $book->reviews, etc.
+	// $book->id is a string representation of the object's MongoId.
 	
 	// Let's say we're an API, so let's just send the object as JSON:
 	
@@ -30,13 +31,12 @@ public function show($id)
 
 Mongovel detects that `$id` is the string representation for a MongoId, and returns an object that will be automatically serialized and sent as JSON by Laravel.
 
-`POST books`:
+**`POST books`**:
 
 ```php
 public function store()
 {
 	$book = Input::only('title', 'content');
-	$book['reviews'] = array();
 
 	Book::insert($book);
 }
@@ -44,7 +44,7 @@ public function store()
 
 What if we want to update some field on our book? Let's say we're posting a review:
 
-`POST books/512ce86b98dee4a87a000000/reviews`:
+**`POST books/512ce86b98dee4a87a000000/reviews`**:
 
 ```php
 public function reviewStore($id)
@@ -69,7 +69,7 @@ public function destroy($id)
 ```
 
 Finally, Mongovel wraps MongoCursor results into Laravel Collections, so you can just do:
-`GET books`:
+**`GET books`**:
 
 ```php
 public function index()
