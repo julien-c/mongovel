@@ -2,14 +2,14 @@
 namespace Mongovel;
 
 use Illuminate\Support\Str;
-use JsonSerializable;
+use Illuminate\Support\Contracts\JsonableInterface;
 use MongoCollection;
 use MongoCursor;
 
 /**
  * A Mongovel model
  */
-class Model extends Mongovel implements JsonSerializable
+class Model extends Mongovel implements JsonableInterface
 {
 	/**
 	 * Collection name
@@ -144,7 +144,18 @@ class Model extends Mongovel implements JsonSerializable
 	}
 
 	/**
-	 * Transforms the cursor to a string
+	 * Transforms the Model to a JSON string
+	 *
+	 * @param  int  $options
+	 * @return string
+	 */
+	public function toJson($options = 0)
+	{
+		return json_encode($this->toArray(), $options);
+	}
+
+	/**
+	 * Transforms the cursor to a string (PHP 5.4, will implement JsonSerializable when we drop support for PHP 5.3)
 	 *
 	 * @return string
 	 */
