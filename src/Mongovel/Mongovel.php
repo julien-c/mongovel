@@ -56,7 +56,7 @@ class Mongovel
 	protected static function handleParameters($p)
 	{
 		// Assume it's a MongoId
-		if (is_string($p)) {
+		if (is_string($p) && strlen($p) === 24 && ctype_xdigit($p)) {
 			return array('_id' => new MongoId($p));
 		} elseif ($p instanceof MongoId) {
 			return array('_id' => $p);
