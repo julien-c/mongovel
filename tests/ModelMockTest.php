@@ -1,6 +1,6 @@
 <?php
 
-include '_start.php';
+require_once '_start.php';
 
 class ModelMockTest extends MongovelMockTests
 {
