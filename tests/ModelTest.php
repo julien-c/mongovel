@@ -27,7 +27,24 @@ class ModelTest extends MongovelTests
 		$this->assertEquals('[{"title":"My life","id":"512ce86b98dee4a87a000000"},{"title":"My life, II","id":"512ce86b98dee4a87a000001"}]', $books->toJson());
 	}
 	
+	public function testCanFindAndLimit()
+	{
+		self::insertFixture();
+		
+		$books = Book::find()->limit(1);
+		
+		$this->assertEquals('[{"title":"My life","id":"512ce86b98dee4a87a000000"}]', $books->toJson());
+	}
 	
+	public function testCanCountInMongoCursorWay()
+	{
+		self::insertFixture();
+		
+		$count = Book::find()->limit(1)->count();
+		
+		// 2, not 1:
+		$this->assertEquals(2, $count);
+	}
 	
 	//////////////////////////////////////////////////////////
 	//////////////////////// Fixtures ////////////////////////

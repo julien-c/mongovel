@@ -29,6 +29,13 @@ class Cursor extends Collection
 	protected $class;
 
 	/**
+	 * Flag indicating whether MongoCursor has already been iterated over
+	 *
+	 * @var boolean
+	 */
+	protected $iterated;
+
+	/**
 	 * Create a new Mongovel Cursor instance
 	 *
 	 * @param MongoCursor $cursor
@@ -36,13 +43,10 @@ class Cursor extends Collection
 	 */
 	public function __construct(MongoCursor $cursor, $class = null)
 	{
-		$this->cursor = $cursor;
-		$this->class  = $class;
-		
-		$this->items = array();
-		foreach ($cursor as $item) {
-			$this->items[] = new $class($item);
-		}
+		$this->cursor   = $cursor;
+		$this->class    = $class;
+		$this->items    = array();
+		$this->iterated = false;
 	}
 
 	/**
@@ -55,27 +59,71 @@ class Cursor extends Collection
 	 */
 	public function __call($method, $parameters)
 	{
-		return call_user_func_array(array($this->cursor, $method), $parameters);
+		call_user_func_array(array($this->cursor, $method), $parameters);
+		
+		return $this;
 	}
 
 	/**
-	 * Get the original MongoCursor
+	 * This is where we actually iterate over the original MongoCursor
 	 *
-	 * @return MongoCursor
+	 * @return null
 	 */
+	public function iterateOverCursor()
+	{
+		if (!$this->iterated) {
+			$class = $this->class;
+			foreach ($this->cursor as $item) {
+				$this->items[] = new $class($item);
+			}
+			$this->iterated = true;
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////
+	/////////////////// METHODS THAT RELY ON ITERATION /////////////////
+	////////////////////////////////////////////////////////////////////
+
+	public function each(Closure $callback)
+	{
+		$this->iterateOverCursor();
+		return parent::each($callback);
+	}
+
+	public function map(Closure $callback)
+	{
+		$this->iterateOverCursor();
+		return parent::map($callback);
+	}
+
+	public function filter(Closure $callback)
+	{
+		$this->iterateOverCursor();
+		return parent::filter($callback);
+	}
+
+	public function toArray()
+	{
+		$this->iterateOverCursor();
+		return parent::toArray();
+	}
+
 	public function getIterator()
 	{
-		return $this->cursor;
+		$this->iterateOverCursor();
+		return parent::getIterator();
 	}
 
 	////////////////////////////////////////////////////////////////////
-	/////////////////////////// CURSOR METHODS /////////////////////////
+	////////////// SPECIFIC OVERRIDE OF LARAVEL COLLECTION /////////////
 	////////////////////////////////////////////////////////////////////
-
+	
 	/**
-	 * Count the number of items in the Cursor
+	 * On this particular point, we don't respect the semantics of Laravel's
+	 * Collections: count is the MongoCursor's count, not the number of items
+	 * in the current collection.
 	 *
-	 * @return integer
+	 * @return int
 	 */
 	public function count()
 	{
@@ -95,9 +143,8 @@ class Cursor extends Collection
 	 */
 	public function toArrayFiltered($hidden = array())
 	{
-		$class = $this->class;
-		return $this->map(function($model) use ($hidden, $class) {
-
+		$this->iterateOverCursor();
+		return $this->map(function($model) use ($hidden) {
 			return array_diff_key($model->toArray(), array_flip($hidden));
 		});
 	}
