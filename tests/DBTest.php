@@ -2,7 +2,7 @@
 
 require_once '_start.php';
 
-class DBMongoTest extends MongovelMongoTests
+class DBTest extends MongovelTests
 {
 	public function testCanInstantiateDB()
 	{

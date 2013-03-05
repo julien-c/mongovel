@@ -16,32 +16,12 @@ Mockery::mock('alias:Config', function($mock) {
 
 
 
-class DummyModel extends Mongovel\Model
-{
-	protected $hidden = array('hidden');
-}
-
 class Book extends Mongovel\Model
 {
 	protected $hidden = array('hidden');
 }
 
-class MongovelMockTests extends PHPUnit_Framework_TestCase
-{
-	public static function setUpBeforeClass()
-	{
-		DummyModel::$collection = Mockery::mock('MongoCollection', function($mock) {
-			$mock->shouldReceive('find')->andReturn(array(array('foo' => 'bar')));
-		});
-	}
-	
-	public static function tearDownAfterClass()
-	{
-		Mockery::close();
-	}
-}
-
-class MongovelMongoTests extends PHPUnit_Framework_TestCase
+class MongovelTests extends PHPUnit_Framework_TestCase
 {
 	protected static $db;
 	

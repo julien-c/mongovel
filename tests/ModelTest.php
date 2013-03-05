@@ -2,7 +2,7 @@
 
 require_once '_start.php';
 
-class ModelMongoTest extends MongovelMongoTests
+class ModelTest extends MongovelTests
 {
 	public function testCanFindOneById()
 	{
