@@ -5,7 +5,7 @@ class DummyModel extends Mongovel\Model
 	protected $hidden = array('hidden');
 }
 
-class MongovelTests extends PHPUnit_Framework_TestCase
+class MongovelMockTests extends PHPUnit_Framework_TestCase
 {
 	public static function setUpBeforeClass()
 	{

@@ -2,7 +2,7 @@
 
 include '_start.php';
 
-class ModelTest extends MongovelTests
+class ModelMockTest extends MongovelMockTests
 {
 	public function testCanStaticallyCreateModels()
 	{
