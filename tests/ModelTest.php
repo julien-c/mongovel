@@ -46,6 +46,16 @@ class ModelTest extends MongovelTests
 		$this->assertEquals(2, $count);
 	}
 	
+	public function testCanGetResultsAsArrayOfModels()
+	{
+		self::insertFixture();
+		
+		$books = Book::find()->all();
+		
+		$this->assertEquals("My life", $books[0]->title);
+		$this->assertEquals("My life, II", $books[1]->title);
+	}
+	
 	//////////////////////////////////////////////////////////
 	//////////////////////// Fixtures ////////////////////////
 	//////////////////////////////////////////////////////////
