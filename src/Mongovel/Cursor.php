@@ -84,6 +84,12 @@ class Cursor extends Collection
 	/////////////////// METHODS THAT RELY ON ITERATION /////////////////
 	////////////////////////////////////////////////////////////////////
 
+	public function all()
+	{
+		$this->iterateOverCursor();
+		return parent::all();
+	}
+
 	public function each(Closure $callback)
 	{
 		$this->iterateOverCursor();
