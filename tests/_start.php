@@ -15,6 +15,10 @@ Mockery::mock('alias:Config', function($mock) {
 });
 
 
+class DummyModel extends Mongovel\Model
+{
+	protected $hidden = array('hidden');
+}
 
 class Book extends Mongovel\Model
 {
