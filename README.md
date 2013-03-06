@@ -12,6 +12,12 @@ In that spirit, Mongovel is a **thin wrapper over the PHP driver that makes it m
 
 Enough talking, here's how to use Mongovel:
 
+```php
+class Book extends MongovelModel
+{
+}
+```
+
 **`GET books/512ce86b98dee4a87a000000`**:
 
 ```php
@@ -74,7 +80,7 @@ Finally, Mongovel wraps MongoCursor results into Laravel Collections, so you can
 ```php
 public function index()
 {
-	$books = Book::find($id);
+	$books = Book::find();
 	
 	$books->each(function($book) {
 		// Do anything you would do on a Laravel Collection
