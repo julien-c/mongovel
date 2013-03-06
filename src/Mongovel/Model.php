@@ -121,6 +121,17 @@ class Model extends Mongovel implements JsonableInterface
 		}
 	}
 
+	/**
+	 * Determine if an attribute exists on the model.
+	 *
+	 * @param  string  $key
+	 * @return void
+	 */
+	public function __isset($key)
+	{
+		return isset($this->attributes[$key]) or isset($this->relations[$key]);
+	}
+
 	////////////////////////////////////////////////////////////////////
 	/////////////////////////// SERIALIZATION //////////////////////////
 	////////////////////////////////////////////////////////////////////
