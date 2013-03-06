@@ -129,7 +129,7 @@ class Model extends Mongovel implements JsonableInterface
 	 */
 	public function __isset($key)
 	{
-		return isset($this->attributes[$key]) or isset($this->relations[$key]);
+		return isset($this->attributes[$key]);
 	}
 
 	////////////////////////////////////////////////////////////////////
