@@ -18,15 +18,20 @@ class Mongovel
 	 *
 	 * @param array $parameters
 	 *
-	 * @return Model
+	 * @return Model|null
 	 */
 	public static function findOne($parameters)
 	{
 		$parameters = static::handleParameters($parameters);
 
 		$results = static::getModelCollection()->findOne($parameters);
-
-		return static::getModelInstance($results);
+		
+		if ($results) {
+			return static::getModelInstance($results);
+		}
+		else {
+			return null;
+		}
 	}
 
 	////////////////////////////////////////////////////////////////////

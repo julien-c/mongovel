@@ -17,6 +17,14 @@ class ModelTest extends MongovelTests
 		$this->assertEquals(new MongoId('512ce86b98dee4a87a000000'), $book->_id);
 	}
 	
+	public function testFindOneReturnsNullIfNoResult()
+	{
+		self::insertFixture();
+		
+		$book = Book::findOne(array('test' => 'test'));
+		$this->assertNull($book);
+	}
+	
 	public function testCanFindAllDocuments()
 	{
 		self::insertFixture();
