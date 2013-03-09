@@ -73,14 +73,9 @@ class Model extends Mongovel implements JsonableInterface
 	 */
 	public function getCollection()
 	{
-		if (!static::$db) {
-			$db = new DB;
-			static::$db = $db->db;
-		}
-
 		$collectionName = $this->getCollectionName();
 
-		return static::$db->$collectionName;
+		return Mongovel::db()->$collectionName;
 	}
 
 	/**

@@ -22,6 +22,11 @@ class Mongovel
 	 */
 	public static function db()
 	{
+		if (!static::$db) {
+			$db = new DB;
+			static::$db = $db->db;
+		}
+		
 		return static::$db;
 	}
 
