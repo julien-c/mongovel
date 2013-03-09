@@ -44,6 +44,13 @@ class Model extends Mongovel implements JsonableInterface
 	protected $hidden = array();
 
 	/**
+	 * An array of already loaded relations
+	 *
+	 * @var array
+	 */
+	protected $loadedRelations = array();
+
+	/**
 	 * Create a new model instance
 	 */
 	public function __construct($attributes = array())
@@ -126,6 +133,13 @@ class Model extends Mongovel implements JsonableInterface
 			return (string) $this->attributes['_id'];
 		}
 
+		// Relations
+		if (method_exists($this, $key)) {
+			return $this->$key();
+		} elseif (array_key_exists($key, $this->loadedRelations)) {
+			return $this->loadedRelations[$key];
+		}
+
 		if (array_key_exists($key, $this->attributes)) {
 			return $this->attributes[$key];
 		}
@@ -139,7 +153,7 @@ class Model extends Mongovel implements JsonableInterface
 	 */
 	public function __isset($key)
 	{
-		return isset($this->attributes[$key]);
+		return isset($this->attributes[$key]) or method_exists($this, $key);
 	}
 
 	////////////////////////////////////////////////////////////////////
@@ -200,7 +214,7 @@ class Model extends Mongovel implements JsonableInterface
 	{
 		$collection = new $model;
 		$collection = $collection->getCollectionName();
-		$items = $this->$collection;
+		$items = $this->attributes[$collection];
 
 		return $this->handleRelation($items, $model);
 	}
@@ -236,6 +250,9 @@ class Model extends Mongovel implements JsonableInterface
 				return new $model($item);
 			}, $items);
 		}
+
+		// Save relation
+		$this->loadedRelations[$model] = $items;
 
 		return $items;
 	}
