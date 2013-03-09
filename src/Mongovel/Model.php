@@ -12,20 +12,20 @@ use MongoCursor;
 class Model extends Mongovel implements JsonableInterface
 {
 	/**
+	 * The database instance
+	 *
+	 * @var DB
+	 */
+	protected static $db;
+
+	/**
 	 * Collection name
 	 *
 	 * If not specified, will be set to the (lowercased) model name
 	 *
 	 * @var null
 	 */
-	public static $collectionName = null;
-
-	/**
-	 * The model's Mongo collection
-	 *
-	 * @var MongoCollection
-	 */
-	public static $collection;
+	protected $collectionName = null;
 
 	/**
 	 * The model's attributes, e.g. the result from
@@ -51,21 +51,35 @@ class Model extends Mongovel implements JsonableInterface
 	}
 
 	/**
+	 * Get the Collection name of the model
+	 *
+	 * @return string
+	 */
+	public function getCollectionName()
+	{
+		if (!$this->collectionName) {
+			$collectionName = Str::plural(get_called_class());
+			$collectionName = strtolower($collectionName);
+		}
+
+		return $this->collectionName = $collectionName;
+	}
+
+	/**
 	 * Get the Model's collection
 	 *
 	 * @return MongoCollection
 	 */
 	public function getCollection()
 	{
-		if (!static::$collection) {
-			$collectionName = Str::plural(get_called_class());
-			$collectionName = strtolower($collectionName);
-
+		if (!static::$db) {
 			$db = new DB;
-			static::$collection = $db->db->$collectionName;
+			static::$db = $db->db;
 		}
 
-		return static::$collection;
+		$collectionName = $this->getCollectionName();
+
+		return static::$db->$collectionName;
 	}
 
 	/**
@@ -198,7 +212,7 @@ class Model extends Mongovel implements JsonableInterface
 	 */
 	protected static function getModelCollection()
 	{
-		return static::$collection ?: static::getModelInstance()->getCollection();
+		return static::getModelInstance()->getCollection();
 	}
 
 }
