@@ -202,7 +202,7 @@ class Model extends Mongovel implements JsonableInterface
 		$collection = $collection->getCollectionName();
 		$items = $this->$collection;
 
-		return $this->handleReferences($items, $model);
+		return $this->handleRelation($items, $model);
 	}
 
 	////////////////////////////////////////////////////////////////////
@@ -217,17 +217,23 @@ class Model extends Mongovel implements JsonableInterface
 	 *
 	 * @return array
 	 */
-	protected function handleReferences($items, $model = null)
+	protected function handleRelation($items, $model = null)
 	{
 		if (empty($items)) return $items;
 
-		 // Fetch references and transform into models
+		 // Fetch references
 		if (isset($items[0]['$ref'])) {
 			$items = array_map(function($item) use($model) {
 				$item = MongoDBRef::get(Mongovel::db(), $item);
-				if ($model) $item = new $model($item);
 
 				return $item;
+			}, $items);
+		}
+
+		// Transform children into models
+		if ($model) {
+			$items = array_map(function($item) use($model) {
+				return new $model($item);
 			}, $items);
 		}
 
