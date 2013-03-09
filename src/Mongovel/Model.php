@@ -4,6 +4,7 @@ namespace Mongovel;
 use Illuminate\Support\Str;
 use Illuminate\Support\Contracts\JsonableInterface;
 use MongoCollection;
+use MongoDBRef;
 use MongoCursor;
 
 /**
@@ -190,8 +191,53 @@ class Model extends Mongovel implements JsonableInterface
 	}
 
 	////////////////////////////////////////////////////////////////////
+	/////////////////////////// RELATIONSHIPS //////////////////////////
+	////////////////////////////////////////////////////////////////////
+
+	/**
+	 * Fetch children in a document
+	 *
+	 * @param string $model The model they belong to
+	 *
+	 * @return array
+	 */
+	protected function hasMany($model)
+	{
+		$collection = new $model;
+		$collection = $collection->getCollectionName();
+		$items = $this->$collection;
+
+		return $this->handleReferences($items, $model);
+	}
+
+	////////////////////////////////////////////////////////////////////
 	////////////////////////////// HELPERS /////////////////////////////
 	////////////////////////////////////////////////////////////////////
+
+	/**
+	 * Transform references into models
+	 *
+	 * @param array  $items An array of items
+	 * @param string $model The model to turn them into
+	 *
+	 * @return array
+	 */
+	protected function handleReferences($items, $model = null)
+	{
+		if (empty($items)) return $items;
+
+		 // Fetch references and transform into models
+		if (isset($items[0]['$ref'])) {
+			$items = array_map(function($item) use($model) {
+				$item = MongoDBRef::get(Mongovel::db(), $item);
+				if ($model) $item = new $model($item);
+
+				return $item;
+			}, $items);
+		}
+
+		return $items;
+	}
 
 	/**
 	 * Get an instance of the model

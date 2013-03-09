@@ -8,6 +8,22 @@ use MongoId;
  */
 class Mongovel
 {
+	/**
+	 * The database instance
+	 *
+	 * @var DB
+	 */
+	protected static $db;
+
+	/**
+	 * Get the Mongo database
+	 *
+	 * @return DB
+	 */
+	public static function db()
+	{
+		return static::$db;
+	}
 
 	////////////////////////////////////////////////////////////////////
 	////////////////////////////// METHODS /////////////////////////////
