@@ -103,6 +103,8 @@ abstract class MongoRelation
 			return $items->all();
 		}
 
+		if (is_object($items)) return $items;
+
 		$relationModel = $this->relationModel;
 
 		// If it's a single result, don't loop
