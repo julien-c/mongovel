@@ -5,6 +5,8 @@ class HasOne extends MongoRelation
 {
 	protected function fetchResults($item)
 	{
-		return $this->relationModel::findOne($item);
+		$relationModel = $this->relationModel;
+
+		return $relationModel::findOne($item);
 	}
 }
