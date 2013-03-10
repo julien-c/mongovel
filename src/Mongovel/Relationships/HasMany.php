@@ -19,6 +19,16 @@ class HasMany extends MongoRelation
 	}
 
 	/**
+	 * Get the results or an empty array if nothing
+	 *
+	 * @return array
+	 */
+	public function getResults()
+	{
+		return $this->results ?: array();
+	}
+
+	/**
 	 * Transform references into models
 	 *
 	 * @return array
