@@ -71,6 +71,8 @@ abstract class MongoRelation
 	////////////////////////////// HELPERS /////////////////////////////
   ////////////////////////////////////////////////////////////////////
 
+	abstract protected function getForeignKey();
+
 	/**
 	 * Get the items to work on
 	 *
@@ -79,10 +81,7 @@ abstract class MongoRelation
 	protected function getItems()
 	{
 		// Get the field to use
-		if (!$this->field) {
-			$collection = new $this->relationModel;
-			$this->field = $collection->getCollectionName();
-		}
+		if (!$this->field) $this->field = $this->getForeignKey();
 
 		return isset($this->model->attributes[$this->field])
 			? $this->model->attributes[$this->field]

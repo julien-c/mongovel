@@ -4,9 +4,20 @@ namespace Mongovel\Relationships;
 use MongoDBRef;
 use MongoId;
 use Mongovel\Mongovel;
+use Str;
 
 class HasMany extends MongoRelation
 {
+	/**
+	 * Get the field the relation's in
+	 *
+	 * @return string
+	 */
+	protected function getForeignKey()
+	{
+		return strtolower(Str::plural($this->relationModel));
+	}
+
 	/**
 	 * Transform references into models
 	 *
