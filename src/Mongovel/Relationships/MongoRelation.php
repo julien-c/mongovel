@@ -104,13 +104,13 @@ abstract class MongoRelation
 			return $items->all();
 		}
 
-		$model = $this->model;
+		$relationModel = $this->relationModel;
 
 		// If it's a single result, don't loop
-		if (!is_array($items)) return new $model($items);
+		if (!is_array($items)) return new $relationModel($items);
 
 		foreach ($items as $key => $item) {
-			$items[$key] = new $model($item);
+			$items[$key] = new $relationModel($item);
 		}
 
 		return $items;
