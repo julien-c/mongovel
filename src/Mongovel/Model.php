@@ -47,7 +47,7 @@ class Model extends Mongovel implements JsonableInterface
 	 *
 	 * @var array
 	 */
-	protected $loadedRelations = array();
+	protected $relations = array();
 
 	/**
 	 * Create a new model instance
@@ -133,11 +133,13 @@ class Model extends Mongovel implements JsonableInterface
 		}
 
 		// Relations
-		if (array_key_exists($key, $this->loadedRelations)) {
-			return $this->loadedRelations[$key];
-		} elseif (method_exists($this, $key)) {
-			$this->loadedRelations[$key] = $this->$key()->getResults();
-			return $this->loadedRelations[$key];
+		if (method_exists($this, $key)) {
+			return $this->getRelationResults($key);
+		}
+
+		// Mutators
+		if ($this->hasGetMutator($key)) {
+			return $this->getMutator($key);
 		}
 
 		if (array_key_exists($key, $this->attributes)) {
@@ -154,6 +156,52 @@ class Model extends Mongovel implements JsonableInterface
 	public function __isset($key)
 	{
 		return isset($this->attributes[$key]) or method_exists($this, $key);
+	}
+
+  ////////////////////////////////////////////////////////////////////
+	//////////////////////////// ATTRIBUTES ////////////////////////////
+  ////////////////////////////////////////////////////////////////////
+
+	/**
+	 * Get a Relation's results from the model
+	 *
+	 * @param string $key
+	 *
+	 * @return array
+	 */
+	public function getRelationResults($key)
+	{
+		if (array_key_exists($key, $this->relations)) {
+			return $this->relations[$key];
+		}
+
+		if (method_exists($this, $key)) {
+			return $this->relations[$key] = $this->$key()->getResults();
+		}
+	}
+
+	/**
+	 * Check if a model has a get mutator
+	 *
+	 * @return boolean
+	 */
+	public function hasGetMutator($key)
+	{
+		$mutator = 'get'.Str::studly($key).'Attribute';
+
+		return method_exists($this, $mutator) ? $mutator : false;
+	}
+
+	/**
+	 * Get an attribute mutator
+	 *
+	 * @param string $key
+	 *
+	 * @return mixed
+	 */
+	public function getMutator($key)
+	{
+		return $this->{$this->hasGetMutator($key)}();
 	}
 
 	////////////////////////////////////////////////////////////////////
