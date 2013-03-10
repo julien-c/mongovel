@@ -4,7 +4,6 @@ namespace Mongovel;
 use Illuminate\Support\Str;
 use Illuminate\Support\Contracts\JsonableInterface;
 use MongoCollection;
-use MongoDBRef;
 use MongoCursor;
 
 /**
@@ -134,9 +133,10 @@ class Model extends Mongovel implements JsonableInterface
 		}
 
 		// Relations
-		if (method_exists($this, $key)) {
-			return $this->$key();
-		} elseif (array_key_exists($key, $this->loadedRelations)) {
+		if (array_key_exists($key, $this->loadedRelations)) {
+			return $this->loadedRelations[$key];
+		} elseif (method_exists($this, $key)) {
+			$this->loadedRelations[$key] = $this->$key()->getResults();
 			return $this->loadedRelations[$key];
 		}
 
@@ -204,58 +204,24 @@ class Model extends Mongovel implements JsonableInterface
 	////////////////////////////////////////////////////////////////////
 
 	/**
-	 * Fetch children in a document
-	 *
-	 * @param string $model The model they belong to
-	 *
-	 * @return array
+	 * Fetch child in a document
 	 */
-	protected function hasMany($model)
+	public function hasOne($model, $field = null)
 	{
-		$collection = new $model;
-		$collection = $collection->getCollectionName();
-		$items = $this->attributes[$collection];
+		return new Relationships\HasOne($this, $model, $field);
+	}
 
-		return $this->handleRelation($items, $model);
+	/**
+	 * Fetch children in a document
+	 */
+	protected function hasMany($model, $field = null)
+	{
+		return new Relationships\HasMany($this, $model, $field);
 	}
 
 	////////////////////////////////////////////////////////////////////
 	////////////////////////////// HELPERS /////////////////////////////
 	////////////////////////////////////////////////////////////////////
-
-	/**
-	 * Transform references into models
-	 *
-	 * @param array  $items An array of items
-	 * @param string $model The model to turn them into
-	 *
-	 * @return array
-	 */
-	protected function handleRelation($items, $model = null)
-	{
-		if (empty($items)) return $items;
-
-		 // Fetch references
-		if (isset($items[0]['$ref'])) {
-			$items = array_map(function($item) use($model) {
-				$item = MongoDBRef::get(Mongovel::db(), $item);
-
-				return $item;
-			}, $items);
-		}
-
-		// Transform children into models
-		if ($model) {
-			$items = array_map(function($item) use($model) {
-				return new $model($item);
-			}, $items);
-		}
-
-		// Save relation
-		$this->loadedRelations[$model] = $items;
-
-		return $items;
-	}
 
 	/**
 	 * Get an instance of the model
