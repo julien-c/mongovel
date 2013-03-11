@@ -83,9 +83,7 @@ abstract class MongoRelation
 		// Get the field to use
 		if (!$this->field) $this->field = $this->getForeignKey();
 
-		return isset($this->model->attributes[$this->field])
-			? $this->model->attributes[$this->field]
-			: null;
+		return $this->model->getAttribute($this->field);
 	}
 
 	/**

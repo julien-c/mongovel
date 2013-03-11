@@ -142,9 +142,7 @@ class Model extends Mongovel implements JsonableInterface
 			return $this->getMutator($key);
 		}
 
-		if (array_key_exists($key, $this->attributes)) {
-			return $this->attributes[$key];
-		}
+		return $this->getAttribute($key);
 	}
 
 	/**
@@ -161,6 +159,24 @@ class Model extends Mongovel implements JsonableInterface
   ////////////////////////////////////////////////////////////////////
 	//////////////////////////// ATTRIBUTES ////////////////////////////
   ////////////////////////////////////////////////////////////////////
+
+	/**
+	 * Get an attribute from the model using dot-notation
+	 *
+	 * @param string $key
+	 *
+	 * @return mixed
+	 */
+	public function getAttribute($key)
+	{
+		$subject = $this->attributes;
+		foreach (explode('.', $key) as $key) {
+			if (!isset($subject[$key])) return null;
+			$subject = $subject[$key];
+		}
+
+		return $subject;
+	}
 
 	/**
 	 * Get a Relation's results from the model
