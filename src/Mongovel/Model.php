@@ -283,6 +283,14 @@ class Model extends Mongovel implements JsonableInterface
 		return new Relationships\HasMany($this, $model, $field);
 	}
 
+	/**
+	 * Fetch the models this model belongs to
+	 */
+	protected function belongsToMany($model, $field = null)
+	{
+		return new Relationships\belongsToMany($this, $model, $field);
+	}
+
 	////////////////////////////////////////////////////////////////////
 	////////////////////////////// HELPERS /////////////////////////////
 	////////////////////////////////////////////////////////////////////
