@@ -67,9 +67,10 @@ class Model extends Mongovel implements JsonableInterface
 		if (!$this->collectionName) {
 			$collectionName = Str::plural(get_called_class());
 			$collectionName = strtolower($collectionName);
+			$this->collectionName = $collectionName;
 		}
-
-		return $this->collectionName = $collectionName;
+		
+		return $this->collectionName;
 	}
 
 	/**
