@@ -43,13 +43,6 @@ class Model extends Mongovel implements JsonableInterface
 	protected $hidden = array();
 
 	/**
-	 * An array of already loaded relations
-	 *
-	 * @var array
-	 */
-	protected $relations = array();
-
-	/**
 	 * Create a new model instance
 	 */
 	public function __construct($attributes = array())
@@ -132,18 +125,11 @@ class Model extends Mongovel implements JsonableInterface
 		if ($key === 'id') {
 			return (string) $this->attributes['_id'];
 		}
-
-		// Relations
-		if (method_exists($this, $key)) {
-			return $this->getRelationResults($key);
+		
+		if (isset($this->attributes[$key])) {
+			return $this->attributes[$key];
 		}
-
-		// Mutators
-		if ($this->hasGetMutator($key)) {
-			return $this->getMutator($key);
-		}
-
-		return $this->getAttribute($key);
+		return null;
 	}
 
 	/**
@@ -154,71 +140,7 @@ class Model extends Mongovel implements JsonableInterface
 	 */
 	public function __isset($key)
 	{
-		return isset($this->attributes[$key]) or method_exists($this, $key);
-	}
-
-  ////////////////////////////////////////////////////////////////////
-	//////////////////////////// ATTRIBUTES ////////////////////////////
-  ////////////////////////////////////////////////////////////////////
-
-	/**
-	 * Get an attribute from the model using dot-notation
-	 *
-	 * @param string $key
-	 *
-	 * @return mixed
-	 */
-	public function getAttribute($key)
-	{
-		$subject = $this->attributes;
-		foreach (explode('.', $key) as $key) {
-			if (!isset($subject[$key])) return null;
-			$subject = $subject[$key];
-		}
-
-		return $subject;
-	}
-
-	/**
-	 * Get a Relation's results from the model
-	 *
-	 * @param string $key
-	 *
-	 * @return array
-	 */
-	public function getRelationResults($key)
-	{
-		if (array_key_exists($key, $this->relations)) {
-			return $this->relations[$key];
-		}
-
-		if (method_exists($this, $key)) {
-			return $this->relations[$key] = $this->$key()->getResults();
-		}
-	}
-
-	/**
-	 * Check if a model has a get mutator
-	 *
-	 * @return boolean
-	 */
-	public function hasGetMutator($key)
-	{
-		$mutator = 'get'.Str::studly($key).'Attribute';
-
-		return method_exists($this, $mutator) ? $mutator : false;
-	}
-
-	/**
-	 * Get an attribute mutator
-	 *
-	 * @param string $key
-	 *
-	 * @return mixed
-	 */
-	public function getMutator($key)
-	{
-		return $this->{$this->hasGetMutator($key)}();
+		return isset($this->attributes[$key]);
 	}
 
 	////////////////////////////////////////////////////////////////////
@@ -262,34 +184,6 @@ class Model extends Mongovel implements JsonableInterface
 	public function jsonSerialize()
 	{
 		return $this->toArray();
-	}
-
-	////////////////////////////////////////////////////////////////////
-	/////////////////////////// RELATIONSHIPS //////////////////////////
-	////////////////////////////////////////////////////////////////////
-
-	/**
-	 * Fetch child in a document
-	 */
-	public function hasOne($model, $field = null)
-	{
-		return new Relationships\HasOne($this, $model, $field);
-	}
-
-	/**
-	 * Fetch children in a document
-	 */
-	protected function hasMany($model, $field = null)
-	{
-		return new Relationships\HasMany($this, $model, $field);
-	}
-
-	/**
-	 * Fetch the models this model belongs to
-	 */
-	protected function belongsToMany($model, $field = null)
-	{
-		return new Relationships\belongsToMany($this, $model, $field);
 	}
 
 	////////////////////////////////////////////////////////////////////
