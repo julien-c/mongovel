@@ -29,7 +29,18 @@ class Mongovel
 		
 		return static::$db;
 	}
-
+	
+	/**
+	 * Static helper to get a MongoCollection
+	 * 
+	 * @return MongoCollection
+	 */
+	public static function collection($collectionName)
+	{
+		$db = self::db();
+		return $db->{$collectionName};
+	}
+	
 	////////////////////////////////////////////////////////////////////
 	////////////////////////////// METHODS /////////////////////////////
 	////////////////////////////////////////////////////////////////////
