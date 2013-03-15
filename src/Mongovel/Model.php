@@ -5,6 +5,8 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Contracts\JsonableInterface;
 use MongoCollection;
 use MongoCursor;
+use MongoDate;
+use MongoId;
 
 /**
  * A Mongovel model
@@ -155,13 +157,22 @@ class Model extends Mongovel implements JsonableInterface
 	public function toArray()
 	{
 		$attributes = array_diff_key($this->attributes, array_flip($this->hidden));
-
-		// Transform _id to id if existing
-		if (isset($attributes['_id'])) {
-			$attributes['id'] = (string) $attributes['_id'];
-			unset($attributes['_id']);
-		}
-
+		
+		// Transform all _id key names to id:
+		$attributes = static::recursiveChangeKeyNames('_id', 'id', $attributes);
+		
+		array_walk_recursive($attributes, function(&$value, $key) use ($attributes) {
+			// Serialize MongoIds as their string representations:
+			if ($value instanceof MongoId) {
+				$value = (string) $value;
+			}
+			
+			// Serialize MongoDates as UNIX timestamps:
+			if ($value instanceof MongoDate) {
+				$value = $value->sec;
+			}
+		});
+		
 		return $attributes;
 	}
 

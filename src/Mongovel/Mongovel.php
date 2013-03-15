@@ -85,7 +85,30 @@ class Mongovel
 		} elseif ($p instanceof MongoId) {
 			return array('_id' => $p);
 		}
-
+		
 		return $p;
+	}
+	
+	
+	/**
+	 * Replaces all occurences of $old as key name by $new
+	 * @param  string $old
+	 * @param  string $new
+	 * @param  array  $array
+	 * @return New array
+	 */
+	protected static function recursiveChangeKeyNames($old, $new, $array)
+	{
+		$result = array();
+		foreach ($array as $key => $value) {
+			if ($key === $old) {
+				$key = $new;
+			}
+			if (is_array($value)) {
+				$value = static::recursiveChangeKeyNames($old, $new, $value);
+			}
+			$result[$key] = $value;
+		}
+		return $result;
 	}
 }
