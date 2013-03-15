@@ -32,7 +32,19 @@ class ModelTest extends MongovelTests
 		$books = Book::find();
 		
 		$this->assertInstanceOf('Mongovel\Cursor', $books);
-		$this->assertEquals('[{"title":"My life","id":"512ce86b98dee4a87a000000"},{"title":"My life, II","id":"512ce86b98dee4a87a000001"}]', $books->toJson());
+		$this->assertEquals(
+			array(
+				array(
+					'id'    => '512ce86b98dee4a87a000000',
+					'title' => "My life"
+				),
+				array(
+					'id'    => '512ce86b98dee4a87a000001',
+					'title' => "My life, II"
+				)
+			),
+			json_decode($books->toJson(), true)
+		);
 	}
 	
 	public function testCanFindAndLimit()
@@ -41,7 +53,15 @@ class ModelTest extends MongovelTests
 		
 		$books = Book::find()->limit(1);
 		
-		$this->assertEquals('[{"title":"My life","id":"512ce86b98dee4a87a000000"}]', $books->toJson());
+		$this->assertEquals(
+			array(
+				array(
+					'id'    => '512ce86b98dee4a87a000000',
+					'title' => "My life"
+				)
+			),
+			json_decode($books->toJson(), true)
+		);
 	}
 	
 	public function testCanCountInMongoCursorWay()
@@ -67,6 +87,7 @@ class ModelTest extends MongovelTests
 	//////////////////////////////////////////////////////////
 	//////////////////////// Fixtures ////////////////////////
 	//////////////////////////////////////////////////////////
+	
 	public static function insertFixture()
 	{
 		self::$db->db->books->batchInsert(array(
@@ -84,6 +105,7 @@ class ModelTest extends MongovelTests
 	//////////////////////////////////////////////////////////
 	//////// Drop database before and after each test ////////
 	//////////////////////////////////////////////////////////
+	
 	protected function setUp()
 	{
 		self::$db->db->drop();
