@@ -90,6 +90,12 @@ class Cursor extends Collection
 		return parent::all();
 	}
 
+	public function offsetGet($offset)
+	{
+		$this->iterateOverCursor();
+		return parent::offsetGet($offset);
+	}
+
 	public function each(Closure $callback)
 	{
 		$this->iterateOverCursor();
