@@ -116,6 +116,26 @@ class Model extends Mongovel implements JsonableInterface
 	}
 
 	/**
+	 * Allow chaining of methods on a Mongo model
+	 *
+	 * @param string $method
+	 * @param array  $parameters
+	 *
+	 * @return MongoCollection
+	 */
+	public function __call($method, $parameters)
+	{
+		if ($this->_id) {
+			array_unshift($parameters, $this->_id);
+			if ($parameters) $parameters[0] = static::handleParameters($parameters[0]);
+			
+			call_user_func_array(array($this->getCollection(), $method), $parameters);
+		}
+
+		return $this;
+	}
+
+	/**
 	 * Get an attribute from the model
 	 *
 	 * @param string $key The attribute
@@ -131,6 +151,7 @@ class Model extends Mongovel implements JsonableInterface
 		if (isset($this->attributes[$key])) {
 			return $this->attributes[$key];
 		}
+
 		return null;
 	}
 
