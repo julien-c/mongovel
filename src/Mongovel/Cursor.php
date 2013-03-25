@@ -12,7 +12,7 @@ class Cursor extends Collection
 	 *
 	 * @var MongoCursor
 	 */
-	protected $cursor;
+	public $cursor;
 
 	/**
 	 * The items
