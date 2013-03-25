@@ -17,6 +17,14 @@ class ModelMockTest extends MongovelTests
 
 		$this->assertEquals('bar', $model->foo);
 	}
+	
+	public function testCanSetAttributes()
+	{
+		$model = new DummyModel;
+		$model->foo = 'bar';
+
+		$this->assertEquals('bar', $model->attributes['foo']);
+	}
 
 	public function testCanGetMongoId()
 	{

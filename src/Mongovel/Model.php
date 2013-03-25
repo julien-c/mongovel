@@ -136,10 +136,23 @@ class Model extends Mongovel implements JsonableInterface
 	}
 
 	/**
+	 * Set an attribute of the model. Nothing persistent is done here, this is pure syntactic sugar.
+	 *
+	 * @param string $key The attribute
+	 * @param mixed  $value The value
+	 *
+	 * @return void
+	 */
+	public function __set($key, $value)
+	{
+		$this->attributes[$key] = $value;
+	}
+
+	/**
 	 * Determine if an attribute exists on the model.
 	 *
 	 * @param  string  $key
-	 * @return void
+	 * @return bool
 	 */
 	public function __isset($key)
 	{
