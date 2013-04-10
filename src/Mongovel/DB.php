@@ -2,7 +2,6 @@
 namespace Mongovel;
 
 use MongoClient;
-use Config;
 
 class DB
 {
@@ -50,7 +49,7 @@ class DB
 		else {
 			// Fetch config data:
 			
-			$dsn = Config::get('database.mongodb.' . $this->connection);
+			$dsn = Mongovel::getContainer('config')->get('database.mongodb.' . $this->connection);
 			
 			$this->server   = sprintf('mongodb://%s:%d', $dsn['host'], $dsn['port']);
 			$this->database = $dsn['database'];

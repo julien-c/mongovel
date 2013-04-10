@@ -1,6 +1,7 @@
 <?php namespace Mongovel\Facades;
 
 use Illuminate\Support\Facades\Facade;
+use Mongovel\Mongovel;
 
 class MongovelDB extends Facade {
 
@@ -9,6 +10,9 @@ class MongovelDB extends Facade {
 	 *
 	 * @return object
 	 */
-	protected static function getFacadeAccessor() { return 'mongoveldb'; }
+	protected static function getFacadeAccessor()
+	{
+		return Mongovel::getContainer('mongoveldb');
+	}
 
 }

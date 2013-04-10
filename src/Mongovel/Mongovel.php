@@ -1,23 +1,21 @@
 <?php
 namespace Mongovel;
 
+use Illuminate\Container\Container;
 use MongoId;
-use App;
 
 /**
  * The base model class implementing Eloquent-ier methods
  */
 class Mongovel
 {
+
 	/**
-	 * Get the Mongo database
+	 * The IoC Container
 	 *
-	 * @return DB
+	 * @var Container
 	 */
-	public static function db()
-	{
-		return App::make('mongoveldb')->db();
-	}
+	protected static $container;
 	
 	/**
 	 * Static helper to get a MongoCollection
@@ -27,7 +25,48 @@ class Mongovel
 	public static function collection($collectionName)
 	{
 		$db = self::db();
+
 		return $db->{$collectionName};
+	}
+
+	////////////////////////////////////////////////////////////////////
+	/////////////////////////// CONTAINER //////////////////////////////
+	////////////////////////////////////////////////////////////////////
+
+	/**
+	 * Bind an IoC Container to the class
+	 *
+	 * @param Container $container
+	 */
+	public static function setContainer(Container $container)
+	{
+		static::$container = $container;
+	}
+
+	/**
+	 * Get the IoC Container
+	 *
+	 * @param string $make A dependency to fetch
+	 *
+	 * @return Container
+	 */
+	public static function getContainer($make = null)
+	{
+		if ($make) {
+			return static::$container->make($make);
+		}
+
+		return static::$container;
+	}
+
+	/**
+	 * Get the Mongo database
+	 *
+	 * @return DB
+	 */
+	public static function db()
+	{
+		return static::$container['mongoveldb']->db();
 	}
 	
 	////////////////////////////////////////////////////////////////////
