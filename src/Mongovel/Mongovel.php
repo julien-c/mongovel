@@ -2,6 +2,7 @@
 namespace Mongovel;
 
 use MongoId;
+use App;
 
 /**
  * The base model class implementing Eloquent-ier methods
