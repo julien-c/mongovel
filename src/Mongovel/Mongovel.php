@@ -2,7 +2,6 @@
 namespace Mongovel;
 
 use MongoId;
-use Illuminate\Support\Facades\App;
 
 /**
  * The base model class implementing Eloquent-ier methods
