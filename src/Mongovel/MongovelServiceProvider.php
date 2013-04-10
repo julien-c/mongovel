@@ -29,7 +29,10 @@ class MongovelServiceProvider extends ServiceProvider
 	 */
 	public function register()
 	{
-		//
+		$this->app->singleton('mongoveldb', function()
+		{
+			return new DB;
+		});
 	}
 
 	/**

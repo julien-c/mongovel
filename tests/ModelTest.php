@@ -6,7 +6,7 @@ class ModelTest extends MongovelTests
 {
 	public function testCanFindOneByIdString()
 	{
-		self::$db->db->books->insert(array(
+		self::$db->db()->books->insert(array(
 			'_id'   => new MongoId('512ce86b98dee4a87a000000'),
 			'title' => "My life"
 		));
@@ -90,7 +90,7 @@ class ModelTest extends MongovelTests
 	
 	public static function insertFixture()
 	{
-		self::$db->db->books->batchInsert(array(
+		self::$db->db()->books->batchInsert(array(
 			array(
 				'_id'   => new MongoId('512ce86b98dee4a87a000000'),
 				'title' => "My life"
@@ -108,11 +108,11 @@ class ModelTest extends MongovelTests
 	
 	protected function setUp()
 	{
-		self::$db->db->drop();
+		self::$db->db()->drop();
 	}
 	
 	protected function tearDown()
 	{
-		self::$db->db->drop();
+		self::$db->db()->drop();
 	}
 }

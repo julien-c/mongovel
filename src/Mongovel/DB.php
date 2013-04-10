@@ -7,20 +7,66 @@ use Config;
 class DB
 {
 	/**
-	 * MongoDB database object
-	 *
-	 * @var MongoDB
+	 * Connection name (e.g., 'default')
+	 * 
+	 * @var string
 	 */
-	public $db;
-
+	public $connection;
+	
+	/**
+	 * DSN-like server string
+	 *
+	 * @var string
+	 */
+	public $server;
+	
+	/**
+	 * DSN-like database name
+	 * 
+	 * @var string
+	 */
+	public $database;
+	
 	public function __construct()
 	{
-		$dsn = Config::get('database.mongodb.default');
-
-		$server = sprintf('mongodb://%s:%d', $dsn['host'], $dsn['port']);
-
-		$db = new MongoClient($server);
-
-		$this->db = $db->{$dsn['database']};
+		$this->connection = 'default';
+		
+		$this->setDatabaseDSN();
+	}
+	
+	public function setConnection($name)
+	{
+		$this->connection = $name;
+		
+		$this->setDatabaseDSN();
+	}
+	
+	public function setDatabaseDSN($server = null, $database = null)
+	{
+		if (!is_null($server)) {
+			$this->server   = $server;
+			$this->database = $database;
+		}
+		else {
+			// Fetch config data:
+			
+			$dsn = Config::get('database.mongodb.' . $this->connection);
+			
+			$this->server   = sprintf('mongodb://%s:%d', $dsn['host'], $dsn['port']);
+			$this->database = $dsn['database'];
+		}
+	}
+	
+	
+	/**
+	 * Return a properly-configured MongoDB object
+	 * 
+	 * @return MongoDB
+	 */
+	public function db()
+	{
+		$m = new MongoClient($this->server);
+		
+		return $m->{$this->database};
 	}
 }

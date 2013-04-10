@@ -2,6 +2,7 @@
 namespace Mongovel;
 
 use MongoId;
+use Illuminate\Support\Facades\App;
 
 /**
  * The base model class implementing Eloquent-ier methods
@@ -9,25 +10,13 @@ use MongoId;
 class Mongovel
 {
 	/**
-	 * The database instance
-	 *
-	 * @var DB
-	 */
-	protected static $db;
-
-	/**
 	 * Get the Mongo database
 	 *
 	 * @return DB
 	 */
 	public static function db()
 	{
-		if (!static::$db) {
-			$db = new DB;
-			static::$db = $db->db;
-		}
-		
-		return static::$db;
+		return App::make('mongoveldb')->db();
 	}
 	
 	/**

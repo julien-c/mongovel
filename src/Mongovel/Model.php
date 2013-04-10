@@ -14,13 +14,6 @@ use MongoId;
 class Model extends Mongovel implements JsonableInterface
 {
 	/**
-	 * The database instance
-	 *
-	 * @var DB
-	 */
-	protected static $db;
-
-	/**
 	 * Collection name
 	 *
 	 * If not specified, will be set to the (lowercased) model name

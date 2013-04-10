@@ -11,6 +11,6 @@ class DBTest extends MongovelTests
 	
 	public function testCanAccessMongoDBObject()
 	{
-		$this->assertInstanceOf('MongoDB', self::$db->db);
+		$this->assertInstanceOf('MongoDB', self::$db->db());
 	}
 }
