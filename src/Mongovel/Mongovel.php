@@ -93,6 +93,20 @@ class Mongovel
 			return null;
 		}
 	}
+	
+	/**
+	 * Find a model or throw an exception.
+	 *
+	 * @param array $parameters
+	 * 
+	 * @return Model
+	 */
+	public static function findOneOrFail($parameters)
+	{
+		if ( ! is_null($model = static::findOne($parameters))) return $model;
+
+		throw new ModelNotFoundException;
+	}
 
 	////////////////////////////////////////////////////////////////////
 	////////////////////////////// HELPERS /////////////////////////////
