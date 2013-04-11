@@ -51,11 +51,16 @@ class DB
 			
 			$dsn = Mongovel::getContainer('config')->get('database.mongodb.' . $this->connection);
 			
+			$this->dsn      = $dsn;
 			$this->server   = sprintf('mongodb://%s:%d', $dsn['host'], $dsn['port']);
 			$this->database = $dsn['database'];
 		}
 	}
 	
+	public function getDatabaseDSN()
+	{
+		return $this->dsn;
+	}
 	
 	/**
 	 * Return a properly-configured MongoDB object
