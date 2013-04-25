@@ -2,6 +2,7 @@
 namespace Mongovel;
 
 use Illuminate\Support\Str;
+use Illuminate\Support\Contracts\ArrayableInterface;
 use Illuminate\Support\Contracts\JsonableInterface;
 use MongoCollection;
 use MongoCursor;
@@ -11,7 +12,7 @@ use MongoId;
 /**
  * A Mongovel model
  */
-class Model extends Mongovel implements JsonableInterface
+class Model extends Mongovel implements ArrayableInterface, JsonableInterface
 {
 	/**
 	 * Collection name
