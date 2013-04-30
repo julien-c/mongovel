@@ -123,8 +123,10 @@ class Mongovel
 		$search = self::db()->command(array('text' => $collectionName, 'search' => $q));
 		
 		$items = array();
-		foreach ($search['results'] as $r) {
-			$items[] = static::create($r['obj']);
+		if (isset($search['results'])) {
+			foreach ($search['results'] as $r) {
+				$items[] = static::create($r['obj']);
+			}
 		}
 		
 		return new Collection($items);
