@@ -2,6 +2,7 @@
 namespace Mongovel;
 
 use Illuminate\Container\Container;
+use Illuminate\Support\Collection;
 use MongoId;
 
 /**
@@ -106,6 +107,27 @@ class Mongovel
 		if ( ! is_null($model = static::findOne($parameters))) return $model;
 
 		throw new ModelNotFoundException;
+	}
+
+	/**
+	 * Performs a Full text search on this collection, and returns a Collection of Models
+	 * 
+	 * @param  string $q Search query
+	 * 
+	 * @return Collection
+	 */
+	public static function textSearch($q)
+	{
+		$collectionName = static::getModelInstance()->getCollectionName();
+		
+		$search = self::db()->command(array('text' => $collectionName, 'search' => $q));
+		
+		$items = array();
+		foreach ($search['results'] as $r) {
+			$items[] = static::create($r['obj']);
+		}
+		
+		return new Collection($items);
 	}
 
 	////////////////////////////////////////////////////////////////////
