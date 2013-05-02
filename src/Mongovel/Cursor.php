@@ -1,13 +1,7 @@
 <?php
 namespace Mongovel;
 
-use ArrayAccess;
-use ArrayIterator;
-use Closure;
-use Countable;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Contracts\ArrayableInterface;
-use Illuminate\Support\Contracts\JsonableInterface;
 use IteratorAggregate;
 use MongoCursor;
 
