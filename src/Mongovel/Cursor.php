@@ -1,11 +1,17 @@
 <?php
 namespace Mongovel;
 
+use ArrayAccess;
+use ArrayIterator;
 use Closure;
-use MongoCursor;
+use Countable;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Contracts\ArrayableInterface;
+use Illuminate\Support\Contracts\JsonableInterface;
+use IteratorAggregate;
+use MongoCursor;
 
-class Cursor extends Collection
+class Cursor implements IteratorAggregate
 {
 	/**
 	 * The MongoCursor instance
@@ -15,11 +21,11 @@ class Cursor extends Collection
 	public $cursor;
 
 	/**
-	 * The items
+	 * The items Collection
 	 *
-	 * @var array
+	 * @var string
 	 */
-	protected $items;
+	protected $collection;
 
 	/**
 	 * The Mongovel Model class
@@ -43,10 +49,10 @@ class Cursor extends Collection
 	 */
 	public function __construct(MongoCursor $cursor, $class = null)
 	{
-		$this->cursor   = $cursor;
-		$this->class    = $class;
-		$this->items    = array();
-		$this->iterated = false;
+		$this->cursor     = $cursor;
+		$this->class      = $class;
+		$this->collection = new Collection;
+		$this->iterated   = false;
 	}
 
 	/**
@@ -59,7 +65,15 @@ class Cursor extends Collection
 	 */
 	public function __call($method, $parameters)
 	{
-		call_user_func_array(array($this->cursor, $method), $parameters);
+		// If we're calling a Cursor method
+		if (method_exists($this->cursor, $method)) {
+			call_user_func_array(array($this->cursor, $method), $parameters);
+		} 
+
+		// If we're calling a Collection method
+		elseif (method_exists($this->collection, $method)) {
+			return call_user_func_array(array($this->getIterator(), $method), $parameters);
+		}
 		
 		return $this;
 	}
@@ -72,68 +86,41 @@ class Cursor extends Collection
 	public function iterateOverCursor()
 	{
 		if (!$this->iterated) {
+
+			// Iterate over the Cursor and dereference the items
+			// to actual models
 			$class = $this->class;
 			foreach ($this->cursor as $item) {
-				$this->items[] = new $class($item);
+				$items[] = new $class($item);
 			}
-			$this->iterated = true;
+
+			// Store items in a Collection
+			if (isset($items)) {
+				$this->collection = new Collection($items);
+			}
+
+			$this->iterated   = true;
 		}
 	}
 
-	////////////////////////////////////////////////////////////////////
-	/////////////////// METHODS THAT RELY ON ITERATION /////////////////
-	////////////////////////////////////////////////////////////////////
-
-	public function all()
-	{
-		$this->iterateOverCursor();
-		return parent::all();
-	}
-
-	public function offsetGet($offset)
-	{
-		$this->iterateOverCursor();
-		return parent::offsetGet($offset);
-	}
-
-	public function each(Closure $callback)
-	{
-		$this->iterateOverCursor();
-		return parent::each($callback);
-	}
-
-	public function map(Closure $callback)
-	{
-		$this->iterateOverCursor();
-		return parent::map($callback);
-	}
-
-	public function filter(Closure $callback)
-	{
-		$this->iterateOverCursor();
-		return parent::filter($callback);
-	}
-
-	public function toArray()
-	{
-		$this->iterateOverCursor();
-		return parent::toArray();
-	}
-
+	/** 
+	 * Get an iterated Collection of the Cursor
+	 *
+	 * @return  Collection
+	 */
 	public function getIterator()
 	{
 		$this->iterateOverCursor();
-		return parent::getIterator();
+
+		return $this->collection;
 	}
 
 	////////////////////////////////////////////////////////////////////
-	////////////// SPECIFIC OVERRIDE OF LARAVEL COLLECTION /////////////
+	///////////////////// ALIASES OF CURSOR METHODS ////////////////////
 	////////////////////////////////////////////////////////////////////
-	
+
 	/**
-	 * On this particular point, we don't respect the semantics of Laravel's
-	 * Collections: count is the MongoCursor's count, not the number of items
-	 * in the current collection.
+	 * Count the number of items in the cursor.
 	 *
 	 * @return int
 	 */
@@ -142,29 +129,17 @@ class Cursor extends Collection
 		return $this->cursor->count();
 	}
 
-	public function sort($query)
-	{
-		$this->cursor->sort($query);
-
-		return $this;
-	}
-
 	////////////////////////////////////////////////////////////////////
 	/////////////////////////// SERIALIZATION //////////////////////////
 	////////////////////////////////////////////////////////////////////
 
 	/**
-	 * Convert results to a filtered array
+	 * Convert the collection to its string representation.
 	 *
-	 * @param array $hidden An array of fields to omit
-	 *
-	 * @return array
+	 * @return string
 	 */
-	public function toArrayFiltered($hidden = array())
+	public function __toString()
 	{
-		$this->iterateOverCursor();
-		return $this->map(function($model) use ($hidden) {
-			return array_diff_key($model->toArray(), array_flip($hidden));
-		});
+		return $this->getIterator()->toJson();
 	}
 }
