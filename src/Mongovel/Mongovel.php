@@ -1,6 +1,7 @@
 <?php
 namespace Mongovel;
 
+use InvalidArgumentException;
 use Illuminate\Container\Container;
 use Illuminate\Support\Collection;
 use MongoId;
@@ -84,7 +85,10 @@ class Mongovel
 	public static function findOne($parameters)
 	{
 		$parameters = static::handleParameters($parameters);
-
+		if (!is_array($parameters)) {
+			throw new InvalidArgumentException('A mongo query must be an array of conditions or a MongoId (string/object)');
+		}
+		
 		$results = static::getModelCollection()->findOne($parameters);
 		
 		if ($results) {
