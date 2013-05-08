@@ -114,6 +114,8 @@ Finally, add a MongoDB connection hash to your `app/config/database.php`:
 )
 ```
 
+If needed (for MongoHq and the likes), you can specify a `username` and `password` in this array as well.
+
 ### License
 
 Licensed under the [MIT License](http://cheeaun.mit-license.org/).
