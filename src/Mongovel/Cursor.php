@@ -2,10 +2,11 @@
 namespace Mongovel;
 
 use Illuminate\Support\Collection;
+use Illuminate\Support\Contracts\JsonableInterface;
 use IteratorAggregate;
 use MongoCursor;
 
-class Cursor implements IteratorAggregate
+class Cursor implements IteratorAggregate, JsonableInterface
 {
 	/**
 	 * The MongoCursor instance
@@ -133,6 +134,17 @@ class Cursor implements IteratorAggregate
 	 * @return string
 	 */
 	public function __toString()
+	{
+		return $this->toJson();
+	}
+	
+	/**
+	 * Transforms the Cursor to a JSON string
+	 *
+	 * @param  int  $options
+	 * @return string
+	 */
+	public function toJson($options = 0)
 	{
 		return $this->getIterator()->toJson();
 	}
