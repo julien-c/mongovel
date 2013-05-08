@@ -52,8 +52,14 @@ class DB
 			$dsn = Mongovel::getContainer('config')->get('database.mongodb.' . $this->connection);
 			
 			$this->dsn      = $dsn;
-			$this->server   = sprintf('mongodb://%s:%d', $dsn['host'], $dsn['port']);
 			$this->database = $dsn['database'];
+			
+			if (isset($dsn['username']) && isset($dsn['password'])) {
+				$this->server = sprintf('mongodb://%s:%s@%s:%d/%s', $dsn['username'], $dsn['password'], $dsn['host'], $dsn['port'], $dsn['database']);
+			}
+			else {
+				$this->server = sprintf('mongodb://%s:%d', $dsn['host'], $dsn['port']);
+			}
 		}
 	}
 	
