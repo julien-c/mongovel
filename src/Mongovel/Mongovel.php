@@ -116,15 +116,20 @@ class Mongovel
 	/**
 	 * Performs a Full text search on this collection, and returns a Collection of Models
 	 * 
-	 * @param  string $q Search query
+	 * @param  string $q       Search query
+	 * @param  array  $filter  Restrict the results
 	 * 
 	 * @return Collection
 	 */
-	public static function textSearch($q)
+	public static function textSearch($q, $filter = array())
 	{
 		$collectionName = static::getModelInstance()->getCollectionName();
 		
-		$search = self::db()->command(array('text' => $collectionName, 'search' => $q));
+		$search = self::db()->command(array(
+			'text'   => $collectionName,
+			'search' => $q,
+			'filter' => $filter,
+		));
 		
 		$items = array();
 		if (isset($search['results'])) {
