@@ -26,11 +26,11 @@ class DB
 	 */
 	public $database;
 	
-	public function __construct()
+	public function __construct($server = null, $database = null)
 	{
 		$this->connection = 'default';
 		
-		$this->setDatabaseDSN();
+		$this->setDatabaseDSN($server, $database);
 	}
 	
 	public function setConnection($name)
