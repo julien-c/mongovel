@@ -141,6 +141,18 @@ class Model extends Mongovel implements ArrayableInterface, JsonableInterface
 	{
 		$this->attributes[$key] = $value;
 	}
+	
+	/**
+	 * Unset an attribute of the model. Nothing persistent is done here, this is pure syntactic sugar.
+	 *
+	 * @param string $key The attribute
+	 *
+	 * @return void
+	 */
+	public function __unset($key)
+	{
+		unset($this->attributes[$key]);
+	}
 
 	/**
 	 * Determine if an attribute exists on the model.
