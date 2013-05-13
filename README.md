@@ -102,7 +102,7 @@ Add then alias Mongovel's model class by adding its facade to the `facades` arra
 ```php
 'MongovelModel' => 'Mongovel\Model'
 ```
-Finally, add a MongoDB connection hash to your `app/config/database.php`:
+Finally, add a MongoDB hash at the end of your `app/config/database.php` (so, outside of `connections`):
 
 ```php
 'mongodb' => array(
