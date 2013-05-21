@@ -98,7 +98,7 @@ Add Mongovel's service provider to your Laravel application in `app/config/app.p
 ```php
 'Mongovel\MongovelServiceProvider'
 ```
-Add then alias Mongovel's model class by adding its facade to the `facades` array in the same file :
+Add then alias Mongovel's model class by adding its facade to the `aliases` array in the same file :
 ```php
 'MongovelModel' => 'Mongovel\Model'
 ```
