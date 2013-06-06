@@ -2,7 +2,6 @@
 namespace Mongovel;
 
 use Illuminate\Container\Container;
-use Illuminate\Support\Collection;
 
 class Mongovel
 {
