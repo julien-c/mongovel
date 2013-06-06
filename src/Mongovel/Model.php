@@ -91,25 +91,6 @@ class Model implements ArrayableInterface, JsonableInterface
 	////////////////////////////////////////////////////////////////////
 
 	/**
-	 * Dispatches static calls on the model to a dummy instance
-	 *
-	 * @param string $method
-	 * @param array  $parameters
-	 *
-	 * @return MongoCollection
-	 */
-	public static function __callStatic($method, $parameters)
-	{
-		if ($parameters) $parameters[0] = static::handleParameters($parameters[0]);
-
-		// Convert results if possible
-		$results = call_user_func_array(array(static::getModelCollection(), $method), $parameters);
-		if ($results instanceof MongoCursor) $results = new Cursor($results, get_called_class());
-
-		return $results;
-	}
-
-	/**
 	 * Get an attribute from the model
 	 *
 	 * @param string $key The attribute
@@ -163,6 +144,25 @@ class Model implements ArrayableInterface, JsonableInterface
 	public function __isset($key)
 	{
 		return isset($this->attributes[$key]);
+	}
+	
+	/**
+	 * Dispatches static calls on the model to a dummy instance
+	 *
+	 * @param string $method
+	 * @param array  $parameters
+	 *
+	 * @return MongoCollection
+	 */
+	public static function __callStatic($method, $parameters)
+	{
+		if ($parameters) $parameters[0] = static::handleParameters($parameters[0]);
+
+		// Convert results if possible
+		$results = call_user_func_array(array(static::getModelCollection(), $method), $parameters);
+		if ($results instanceof MongoCursor) $results = new Cursor($results, get_called_class());
+
+		return $results;
 	}
 	
 	////////////////////////////////////////////////////////////////////
