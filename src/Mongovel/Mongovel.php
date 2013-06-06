@@ -1,10 +1,8 @@
 <?php
 namespace Mongovel;
 
-use InvalidArgumentException;
 use Illuminate\Container\Container;
 use Illuminate\Support\Collection;
-use MongoId;
 
 class Mongovel
 {

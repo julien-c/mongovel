@@ -1,7 +1,6 @@
 <?php
 namespace Mongovel;
 
-use Illuminate\Container\Container;
 use Illuminate\Support\ServiceProvider;
 
 class MongovelServiceProvider extends ServiceProvider
