@@ -8,6 +8,7 @@ use MongoCollection;
 use MongoCursor;
 use MongoDate;
 use MongoId;
+use Closure;
 
 /**
  * A Mongovel model
@@ -156,13 +157,17 @@ class Model implements ArrayableInterface, JsonableInterface
 	 */
 	public static function __callStatic($method, $parameters)
 	{
-		if ($parameters) $parameters[0] = static::handleParameters($parameters[0]);
-
-		// Convert results if possible
-		$results = call_user_func_array(array(static::getModelCollection(), $method), $parameters);
-		if ($results instanceof MongoCursor) $results = new Cursor($results, get_called_class());
-
-		return $results;
+		return static::profile(function($method, $parameters) {
+			
+			if ($parameters) $parameters[0] = static::handleParameters($parameters[0]);
+			
+			// Convert results if possible
+			$results = call_user_func_array(array(static::getModelCollection(), $method), $parameters);
+			if ($results instanceof MongoCursor) $results = new Cursor($results, get_called_class());
+			
+			return $results;
+			
+		}, $method, $parameters);
 	}
 	
 	////////////////////////////////////////////////////////////////////
@@ -351,6 +356,23 @@ class Model implements ArrayableInterface, JsonableInterface
 			}
 			$result[$key] = $value;
 		}
+		return $result;
+	}
+	
+	
+	////////////////////////////////////////////////////////////////////
+	///////////////////////////// PROFILING ////////////////////////////
+	////////////////////////////////////////////////////////////////////
+	
+	
+	protected static function profile(Closure $query, $method, $parameters)
+	{
+		$timer = new Timer;
+		
+		$result = $query($method, $parameters);
+		
+		$time = $timer->get();
+
 		return $result;
 	}
 }
