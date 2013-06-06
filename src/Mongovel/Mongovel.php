@@ -86,7 +86,7 @@ class Mongovel
 	{
 		$parameters = static::handleParameters($parameters);
 		if (!is_array($parameters)) {
-			throw new InvalidArgumentException('A mongo query must be an array of conditions or a MongoId (string/object)');
+			throw new InvalidArgumentException('A mongo query must be an array of conditions, a MongoId, or the string representation for a MongoId');
 		}
 		
 		$results = static::getModelCollection()->findOne($parameters);
