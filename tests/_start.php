@@ -33,11 +33,18 @@ abstract class MongovelTests extends PHPUnit_Framework_TestCase
 
 		$container->bind('config', function() {
 			return Mockery::mock('Config', function($mock) {
-				$mock->shouldReceive('get')->with('database.mongodb.default')->andReturn(array(
-					'host'     => 'localhost',
-					'port'     => 27017,
-					'database' => 'mongovel_tests'
-				));
+				$mock->shouldReceive('get')->andReturnUsing(function($key) {
+					if ($key == 'database.mongodb.default') {
+						return array(
+							'host'     => 'localhost',
+							'port'     => 27017,
+							'database' => 'mongovel_tests'
+						);
+					}
+					if ($key == 'profiling.mongo') {
+						return false;
+					}
+				});
 			});
 		});
 
