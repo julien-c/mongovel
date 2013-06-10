@@ -377,9 +377,16 @@ class Model implements ArrayableInterface, JsonableInterface
 	protected static function profile(Timer $timer, $method, array $parameters)
 	{
 		if (Mongovel::getContainer('config')->get('profiling.mongo')) {
-			$backtrace = debug_backtrace(0, 4);
-			$caller = $backtrace[3]['function'];
-			Mongovel::dispatcher()->fire('mongovel.query', array($timer, get_called_class(), $method, $parameters, $caller));
+			$backtrace = debug_backtrace(0, 6);
+			$stack = array();
+			for ($i = 3; $i < count($backtrace); $i++) {
+				$caller = $backtrace[$i]['function'];
+				if (isset($backtrace[$i]['class'])) {
+					$caller = $backtrace[$i]['class'] . '::' . $caller;
+				}
+				$stack[] = $caller;
+			}
+			Mongovel::dispatcher()->fire('mongovel.query', array($timer, get_called_class(), $method, $parameters, implode(', ', $stack)));
 		}
 	}
 }
