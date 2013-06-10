@@ -2,6 +2,7 @@
 namespace Mongovel;
 
 use Illuminate\Support\ServiceProvider;
+use Config;
 
 class MongovelServiceProvider extends ServiceProvider
 {
@@ -35,6 +36,20 @@ class MongovelServiceProvider extends ServiceProvider
 		});
 
 		Mongovel::setContainer($this->app);
+		
+		$this->registerEvents();
+	}
+	
+	/**
+	 * Register profiling events.
+	 *
+	 * @return void
+	 */
+	public function registerEvents()
+	{
+		if (Config::get('profiling.mongo')) {
+			$this->app['events']->listen('mongovel.query', 'Mongovel\ProfilingHandler');
+		}
 	}
 
 	/**

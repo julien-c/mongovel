@@ -8,7 +8,7 @@ use MongoCollection;
 use MongoCursor;
 use MongoDate;
 use MongoId;
-use Closure;
+use Config;
 
 /**
  * A Mongovel model
@@ -157,17 +157,17 @@ class Model implements ArrayableInterface, JsonableInterface
 	 */
 	public static function __callStatic($method, $parameters)
 	{
-		return static::profile(function($method, $parameters) {
-			
-			if ($parameters) $parameters[0] = static::handleParameters($parameters[0]);
-			
-			// Convert results if possible
-			$results = call_user_func_array(array(static::getModelCollection(), $method), $parameters);
-			if ($results instanceof MongoCursor) $results = new Cursor($results, get_called_class());
-			
-			return $results;
-			
-		}, $method, $parameters);
+		$timer = new Timer;
+		
+		if ($parameters) $parameters[0] = static::handleParameters($parameters[0]);
+		
+		// Convert results if possible
+		$results = call_user_func_array(array(static::getModelCollection(), $method), $parameters);
+		if ($results instanceof MongoCursor) $results = new Cursor($results, get_called_class());
+		
+		static::profile($timer, $method, $parameters);
+
+		return $results;
 	}
 	
 	////////////////////////////////////////////////////////////////////
@@ -183,12 +183,16 @@ class Model implements ArrayableInterface, JsonableInterface
 	 */
 	public static function findOne($parameters)
 	{
+		$timer = new Timer;
+		
 		$parameters = static::handleParameters($parameters);
 		if (!is_array($parameters)) {
 			throw new InvalidArgumentException('A mongo query must be an array of conditions, a MongoId, or the string representation for a MongoId');
 		}
 		
 		$results = static::getModelCollection()->findOne($parameters);
+		
+		static::profile($timer, 'findOne', $parameters);
 		
 		if ($results) {
 			return static::getModelInstance($results);
@@ -358,21 +362,23 @@ class Model implements ArrayableInterface, JsonableInterface
 		}
 		return $result;
 	}
-	
-	
+
 	////////////////////////////////////////////////////////////////////
 	///////////////////////////// PROFILING ////////////////////////////
 	////////////////////////////////////////////////////////////////////
-	
-	
-	protected static function profile(Closure $query, $method, $parameters)
-	{
-		$timer = new Timer;
-		
-		$result = $query($method, $parameters);
-		
-		$time = $timer->get();
 
-		return $result;
+	/**
+	 * Mongo query profiling
+	 * @param  Timer  $timer
+	 * @param  string $method
+	 * @param  array  $parameters
+	 * @return void
+	 */
+	protected static function profile(Timer $timer, $method, array $parameters)
+	{
+		if (Config::get('profiling.mongo')) {
+			$caller = debug_backtrace(0, 4)[3]['function'];
+			Mongovel::dispatcher()->fire('mongovel.query', array($timer, get_called_class(), $method, $parameters, $caller));
+		}
 	}
 }

@@ -65,4 +65,13 @@ class Mongovel
 		return static::$container['mongoveldb']->db();
 	}
 
+	/**
+	 * Get the Container's Event Dispatcher
+	 *
+	 * @return DB
+	 */
+	public static function dispatcher()
+	{
+		return static::$container['events'];
+	}
 }
