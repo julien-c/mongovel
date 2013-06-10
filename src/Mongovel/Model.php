@@ -376,7 +376,7 @@ class Model implements ArrayableInterface, JsonableInterface
 	 */
 	protected static function profile(Timer $timer, $method, array $parameters)
 	{
-		if (Config::get('profiling.mongo')) {
+		if (Mongovel::getContainer('config')->get('profiling.mongo')) {
 			$caller = debug_backtrace(0, 4)[3]['function'];
 			Mongovel::dispatcher()->fire('mongovel.query', array($timer, get_called_class(), $method, $parameters, $caller));
 		}
