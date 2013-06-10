@@ -65,12 +65,8 @@ class Cursor implements IteratorAggregate, JsonableInterface
 			call_user_func_array(array($this->cursor, $method), $parameters);
 		} 
 
-		// If we're calling a Collection method
-		elseif (method_exists($this->collection, $method)) {
-			return call_user_func_array(array($this->getIterator(), $method), $parameters);
-		}
-		
-		return $this;
+		// By default, we're calling a Collection method
+		return call_user_func_array(array($this->getIterator(), $method), $parameters);
 	}
 
 	/**
@@ -119,9 +115,9 @@ class Cursor implements IteratorAggregate, JsonableInterface
 	 *
 	 * @return int
 	 */
-	public function count()
+	public function count($applySkipLimit = false)
 	{
-		return $this->cursor->count();
+		return $this->cursor->count($applySkipLimit);
 	}
 
 	////////////////////////////////////////////////////////////////////
