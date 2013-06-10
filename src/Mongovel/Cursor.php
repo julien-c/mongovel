@@ -63,6 +63,7 @@ class Cursor implements IteratorAggregate, JsonableInterface
 		// If we're calling a Cursor method
 		if (method_exists($this->cursor, $method)) {
 			call_user_func_array(array($this->cursor, $method), $parameters);
+			return $this;
 		} 
 
 		// By default, we're calling a Collection method
