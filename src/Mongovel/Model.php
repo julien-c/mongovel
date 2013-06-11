@@ -144,7 +144,7 @@ class Model implements ArrayableInterface, JsonableInterface
 	 */
 	public function __isset($key)
 	{
-		return isset($this->attributes[$key]);
+		return $key == 'id' || isset($this->attributes[$key]);
 	}
 	
 	/**
