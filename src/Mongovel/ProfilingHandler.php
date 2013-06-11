@@ -5,9 +5,9 @@ use Log;
 
 class ProfilingHandler
 {
-	public function handle(Timer $timer, $model, $method, $parameters, $caller)
+	public function handle($time, $model, $parameters, $stack)
 	{
-		$message = sprintf('%f %s::%s (%s)', $timer->get(), $model, $method, $caller);
+		$message = sprintf('%s %s (%s)', $time, $model, $stack);
 		if (Mongovel::getContainer('config')->get('profiling.mongoLogParameters', false)) {
 			$message .= ' ' . json_encode($parameters);
 		}
