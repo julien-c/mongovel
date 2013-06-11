@@ -377,7 +377,8 @@ class Model implements ArrayableInterface, JsonableInterface
 	protected static function profile(Timer $timer, $method, array $parameters)
 	{
 		if (Mongovel::getContainer('config')->get('profiling.mongo')) {
-			$backtrace = debug_backtrace(0, 6);
+			$stackSize = Mongovel::getContainer('config')->get('profiling.mongoStackSize', 3) + 3;
+			$backtrace = debug_backtrace(0, $stackSize);
 			$stack = array();
 			for ($i = 3; $i < count($backtrace); $i++) {
 				$caller = $backtrace[$i]['function'];
