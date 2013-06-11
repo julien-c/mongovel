@@ -1,4 +1,4 @@
-# Mongovel [![Build Status](https://secure.travis-ci.org/julien-c/mongovel.png)](http://travis-ci.org/julien-c/mongovel)
+# Mongovel [![Build Status](https://travis-ci.org/julien-c/mongovel.png?branch=master)](http://travis-ci.org/julien-c/mongovel)
 ## A Laravel-ish wrapper to the PHP Mongo driver
 
 Most MongoDB packages for Laravel insist on abstracting away the PHP driver and implementing a SQL-like, full-fledged query builder. We think the PHP driver for Mongo is great by itself and Mongo's expressiveness out-of-the-box is actually what makes it awesome.
