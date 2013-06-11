@@ -157,16 +157,12 @@ class Model implements ArrayableInterface, JsonableInterface
 	 */
 	public static function __callStatic($method, $parameters)
 	{
-		$timer = new Timer;
-		
 		if ($parameters) $parameters[0] = static::handleParameters($parameters[0]);
 		
 		// Convert results if possible
 		$results = call_user_func_array(array(static::getModelCollection(), $method), $parameters);
 		if ($results instanceof MongoCursor) $results = new Cursor($results, get_called_class());
 		
-		static::profile($timer, $method, $parameters);
-
 		return $results;
 	}
 	
@@ -183,23 +179,10 @@ class Model implements ArrayableInterface, JsonableInterface
 	 */
 	public static function findOne($parameters)
 	{
-		$timer = new Timer;
-		
-		$parameters = static::handleParameters($parameters);
-		if (!is_array($parameters)) {
-			throw new InvalidArgumentException('A mongo query must be an array of conditions, a MongoId, or the string representation for a MongoId');
-		}
-		
-		$results = static::getModelCollection()->findOne($parameters);
-		
-		static::profile($timer, 'findOne', $parameters);
-		
-		if ($results) {
-			return static::getModelInstance($results);
-		}
-		else {
-			return null;
-		}
+		// MongoCursor::findOne is only a wrapper to MongoCursor::find()->limit(-1)->getNext()
+		// @see https://github.com/mongodb/mongo-php-driver/blob/master/collection.c#L873
+		// @see http://stackoverflow.com/a/7961190
+		return static::find($parameters)->limit(-1)->first();
 	}
 	
 	/**
@@ -363,31 +346,4 @@ class Model implements ArrayableInterface, JsonableInterface
 		return $result;
 	}
 
-	////////////////////////////////////////////////////////////////////
-	///////////////////////////// PROFILING ////////////////////////////
-	////////////////////////////////////////////////////////////////////
-
-	/**
-	 * Mongo query profiling
-	 * @param  Timer  $timer
-	 * @param  string $method
-	 * @param  array  $parameters
-	 * @return void
-	 */
-	protected static function profile(Timer $timer, $method, array $parameters)
-	{
-		if (Mongovel::getContainer('config')->get('profiling.mongo')) {
-			$stackSize = Mongovel::getContainer('config')->get('profiling.mongoStackSize', 3) + 3;
-			$backtrace = debug_backtrace(0, $stackSize);
-			$stack = array();
-			for ($i = 3; $i < count($backtrace); $i++) {
-				$caller = $backtrace[$i]['function'];
-				if (isset($backtrace[$i]['class'])) {
-					$caller = $backtrace[$i]['class'] . '::' . $caller;
-				}
-				$stack[] = $caller;
-			}
-			Mongovel::dispatcher()->fire('mongovel.query', array($timer, get_called_class(), $method, $parameters, implode(', ', $stack)));
-		}
-	}
 }
