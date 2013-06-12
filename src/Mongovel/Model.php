@@ -22,7 +22,7 @@ class Model implements ArrayableInterface, JsonableInterface
 	 *
 	 * @var null
 	 */
-	protected $collectionName = null;
+	protected static $collectionName = array();
 
 	/**
 	 * The model's attributes, e.g. the result from
@@ -52,15 +52,18 @@ class Model implements ArrayableInterface, JsonableInterface
 	 *
 	 * @return string
 	 */
-	public function getCollectionName()
+	public static function getCollectionName()
 	{
-		if (!$this->collectionName) {
-			$collectionName = Str::plural(get_called_class());
-			$collectionName = strtolower($collectionName);
-			$this->collectionName = $collectionName;
+		if (!is_array(static::$collectionName)) {
+			return static::$collectionName;
 		}
-		
-		return $this->collectionName;
+		$class = get_called_class();
+		if (!isset(static::$collectionName[$class])) {
+			$collectionName = Str::plural($class);
+			$collectionName = strtolower($collectionName);
+			static::$collectionName[$class] = $collectionName;
+		}
+		return static::$collectionName[$class];
 	}
 
 	/**
@@ -68,9 +71,9 @@ class Model implements ArrayableInterface, JsonableInterface
 	 *
 	 * @return MongoCollection
 	 */
-	public function getCollection()
+	public static function getCollection()
 	{
-		$collectionName = $this->getCollectionName();
+		$collectionName = static::getCollectionName();
 
 		return Mongovel::db()->$collectionName;
 	}
@@ -160,7 +163,7 @@ class Model implements ArrayableInterface, JsonableInterface
 		if ($parameters) $parameters[0] = static::handleParameters($parameters[0]);
 		
 		// Convert results if possible
-		$results = call_user_func_array(array(static::getModelCollection(), $method), $parameters);
+		$results = call_user_func_array(array(static::getCollection(), $method), $parameters);
 		if ($results instanceof MongoCursor) $results = new Cursor($results, get_called_class());
 		
 		return $results;
@@ -209,7 +212,7 @@ class Model implements ArrayableInterface, JsonableInterface
 	 */
 	public static function textSearch($q, $filter = array())
 	{
-		$collectionName = static::getModelInstance()->getCollectionName();
+		$collectionName = static::getCollectionName();
 		
 		$search = self::db()->command(array(
 			'text'   => $collectionName,
@@ -282,28 +285,6 @@ class Model implements ArrayableInterface, JsonableInterface
 	////////////////////////////////////////////////////////////////////
 	////////////////////////////// HELPERS /////////////////////////////
 	////////////////////////////////////////////////////////////////////
-
-	/**
-	 * Get an instance of the model
-	 *
-	 * @return Model
-	 */
-	protected static function getModelInstance($attributes = array())
-	{
-		$model = get_called_class();
-
-		return new $model($attributes);
-	}
-
-	/**
-	 * Get a Collection to work from
-	 *
-	 * @return MongoCollection
-	 */
-	protected static function getModelCollection()
-	{
-		return static::getModelInstance()->getCollection();
-	}
 
 	/**
 	 * Magically handles MongoIds when passed as strings or objects
