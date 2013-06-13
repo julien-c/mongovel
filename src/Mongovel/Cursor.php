@@ -42,12 +42,13 @@ class Cursor implements IteratorAggregate, JsonableInterface
 	 * @param MongoCursor $cursor
 	 * @param Model       $class  The class the Cursor originated from
 	 */
-	public function __construct(MongoCursor $cursor, $class = null)
+	public function __construct(MongoCursor $cursor, $class = null, $method = null)
 	{
 		$this->cursor     = $cursor;
 		$this->class      = $class;
 		$this->collection = new Collection;
 		$this->iterated   = false;
+		$this->method     = $method;
 	}
 
 	/**
@@ -91,7 +92,11 @@ class Cursor implements IteratorAggregate, JsonableInterface
 				$this->collection = new Collection($items);
 			}
 
-			$this->profile();
+			// Profile the query
+			if (Mongovel::getContainer('config')->get('profiling.mongo')) {
+				Mongovel::dispatcher()->fire('mongovel.query', array($this->cursor, $this->class, $this->method));
+			}
+
 			$this->iterated   = true;
 		}
 	}
@@ -145,45 +150,6 @@ class Cursor implements IteratorAggregate, JsonableInterface
 	public function toJson($options = 0)
 	{
 		return $this->getIterator()->toJson();
-	}
-
-
-	////////////////////////////////////////////////////////////////////
-	///////////////////////////// PROFILING ////////////////////////////
-	////////////////////////////////////////////////////////////////////
-
-	/**
-	 * Mongo query profiling
-	 * @param  Timer  $timer
-	 * @param  string $method
-	 * @param  array  $parameters
-	 * @return void
-	 */
-	protected function profile()
-	{
-		if (Mongovel::getContainer('config')->get('profiling.mongo')) {
-			$stackSize = Mongovel::getContainer('config')->get('profiling.mongoStackSize', 3) + 4;
-			$backtrace = debug_backtrace(0, $stackSize);
-
-			$stack = array();
-			for ($i = 4; $i < count($backtrace); $i++) {
-				$caller = $backtrace[$i]['function'];
-				if (isset($backtrace[$i]['class'])) {
-					$caller = $backtrace[$i]['class'] . '::' . $caller;
-				}
-				$stack[] = $caller;
-			}
-
-			$explain = $this->cursor->explain();
-			$info    = $this->cursor->info();
-
-			Mongovel::dispatcher()->fire('mongovel.query', array(
-				$explain['millis'],
-				$this->class,
-				$info['query'],
-				implode(', ', $stack)
-			));
-		}
 	}
 
 }
