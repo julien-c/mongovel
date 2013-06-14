@@ -13,8 +13,6 @@ class ProfilingHandler
 		$stack = array();
 		$i0 = 7;
 		while (isset($backtrace[$i0]['class']) && strpos($backtrace[$i0]['class'], 'Mongovel\\') === 0) {
-			// if available display the original action function (findOne, findOneOrFail)
-			$method = $backtrace[$i0]['function'];
 			$i0++;
 		}
 
