@@ -25,6 +25,18 @@ class ModelTest extends MongovelTests
 		$this->assertNull($book);
 	}
 	
+	public function testFindOneThrowInvalidArgument()
+	{
+		$this->setExpectedException('InvalidArgumentException');
+		Book::findOne('wrong');
+	}
+	
+	public function testFindOneOrFailThrowModelNotFound()
+	{
+		$this->setExpectedException('Mongovel\ModelNotFoundException');
+		Book::findOneOrFail('000000000000000000000000');
+	}
+	
 	public function testCanFindAllDocuments()
 	{
 		self::insertFixture();

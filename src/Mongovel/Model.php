@@ -4,6 +4,7 @@ namespace Mongovel;
 use Illuminate\Support\Str;
 use Illuminate\Support\Contracts\ArrayableInterface;
 use Illuminate\Support\Contracts\JsonableInterface;
+use InvalidArgumentException;
 use MongoCollection;
 use MongoCursor;
 use MongoDate;
@@ -180,12 +181,19 @@ class Model implements ArrayableInterface, JsonableInterface
 	 *
 	 * @return Model|null
 	 */
-	public static function findOne($parameters)
+	public static function findOne($parameters, $method = 'findOne')
 	{
+		$parameters = static::handleParameters($parameters);
+		if (!is_array($parameters)) {
+			throw new InvalidArgumentException('Model::findOne() expect paramater 1 to be an array, a MongoId or a string representation of a MongoId');
+		}
+		
 		// MongoCursor::findOne is only a wrapper to MongoCursor::find()->limit(-1)->getNext()
 		// @see https://github.com/mongodb/mongo-php-driver/blob/master/collection.c#L873
 		// @see http://stackoverflow.com/a/7961190
-		return static::find($parameters)->limit(-1)->first();
+		$results = static::getCollection()->find($parameters)->limit(-1);
+		$data    = new Cursor($results, get_called_class(), $method);
+		return $data->first();
 	}
 	
 	/**
@@ -197,7 +205,7 @@ class Model implements ArrayableInterface, JsonableInterface
 	 */
 	public static function findOneOrFail($parameters)
 	{
-		if ( ! is_null($model = static::findOne($parameters))) return $model;
+		if ( ! is_null($model = static::findOne($parameters, 'findOneOrFail'))) return $model;
 
 		throw new ModelNotFoundException;
 	}
