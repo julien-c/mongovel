@@ -3,7 +3,7 @@
 
 Most MongoDB packages for Laravel insist on abstracting away the PHP driver and implementing a SQL-like, full-fledged query builder. We think the PHP driver for Mongo is great by itself and Mongo's expressiveness out-of-the-box is actually what makes it awesome.
 
-In that spirit, Mongovel is a **thin wrapper over the PHP driver that makes it more Eloquent-like**: 
+In that spirit, Mongovel is a **thin wrapper over the PHP driver that makes it more Eloquent-like**:
 * you'll be able to **access models like objects**, not arrays
 * you'll get query results as **Laravel Collections**
 * and some more syntactic sugar, like Facade-inspired **static shortcuts** to make the whole experience more elegant. And remember, you always keep the full power of Mongo methods, as Mongovel always proxies calls to the underlying MongoCollections and MongoCursors. We're sure you'll love it!
@@ -24,13 +24,13 @@ class Book extends MongovelModel
 public function show($id)
 {
 	$book = Book::findOne($id);
-	
+
 	// Here, you can access the book's attributes like in Eloquent:
 	// $book->title, $book->reviews, etc.
 	// $book->id is a string representation of the object's MongoId.
-	
+
 	// Let's say we're an API, so let's just send the object as JSON:
-	
+
 	return $book;
 }
 ```
@@ -81,11 +81,11 @@ Finally, Mongovel wraps MongoCursor results into Laravel Collections, so you can
 public function index()
 {
 	$books = Book::find();
-	
+
 	$books->each(function($book) {
 		// Do anything you would do on a Laravel Collection
 	});
-	
+
 	return $books;
 }
 ```
@@ -115,6 +115,10 @@ Finally, add a MongoDB hash at the end of your `app/config/database.php` (so, ou
 ```
 
 If needed (for MongoHq and the likes), you can specify a `username` and `password` in this array as well.
+
+### Authentification
+
+To use Mongovel as your Auth provided, you'll simply need to go in the `app/config/auth.php` file and set `mongo` as your driver.
 
 ### License
 
