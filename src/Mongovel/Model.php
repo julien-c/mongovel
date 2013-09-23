@@ -1,6 +1,7 @@
 <?php
 namespace Mongovel;
 
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Illuminate\Support\Contracts\ArrayableInterface;
 use Illuminate\Support\Contracts\JsonableInterface;
@@ -222,7 +223,7 @@ class Model implements ArrayableInterface, JsonableInterface
 	{
 		$collectionName = static::getCollectionName();
 		
-		$search = self::db()->command(array(
+		$search = Mongovel::db()->command(array(
 			'text'   => $collectionName,
 			'search' => $q,
 			'filter' => $filter,
