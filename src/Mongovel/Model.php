@@ -62,7 +62,7 @@ class Model implements ArrayableInterface, JsonableInterface
 		$class = get_called_class();
 		if (!isset(static::$collectionName[$class])) {
 			$collectionName = Str::plural($class);
-			$collectionName = strtolower($collectionName);
+			$collectionName = lcfirst($collectionName);
 			static::$collectionName[$class] = $collectionName;
 		}
 		return static::$collectionName[$class];
