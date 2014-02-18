@@ -128,6 +128,6 @@ Licensed under the [MIT License](http://cheeaun.mit-license.org/).
 
 Before writing our own, here are the wrappers we've checked out (and sometimes contributed to):
 * [hpaul/mongor](https://github.com/hpaul/mongor)
-* [monga/monga](https://github.com/FrenkyNet/Monga)
+* [thephpleague/monga](https://github.com/thephpleague/monga)
 * [flatline/mongol](https://github.com/xFlatlinex/laravel-mongol)
 * [navruzm/lmongo](https://github.com/navruzm/lmongo)
