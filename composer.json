@@ -16,7 +16,6 @@
     ],
     "require": {
         "php": ">=5.3.0",
-        "ext-mongo": "*",
         "illuminate/container": "~4",
         "illuminate/support": "~4"
     },
