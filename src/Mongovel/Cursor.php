@@ -95,6 +95,7 @@ class Cursor implements Iterator, JsonableInterface
 	public function rewind()
 	{
 		$this->cursor->rewind();
+		$this->collection = null;
 	}
 
 	public function key()
