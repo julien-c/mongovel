@@ -74,8 +74,14 @@ class Cursor implements Iterator, JsonableInterface
 
 	public function current()
 	{
-		$class = $this->class;
-		return new $class($this->cursor->current());
+		$current = $this->cursor->current();
+		if (is_null($current)) {
+			return null;
+		}
+		else {
+			$class = $this->class;
+			return new $class($this->cursor->current());
+		}
 	}
 
 	public function next()
