@@ -296,18 +296,15 @@ class Model implements ArrayableInterface, JsonableInterface
 	////////////////////////////////////////////////////////////////////
 
 	/**
-	 * Magically handles MongoIds when passed as strings or objects
+	 * Magically handles MongoIds when passed as objects
 	 *
-	 * @param string|array|MongoId $p An array of parameters or a MongoId (string/object)
+	 * @param array|MongoId $p An array of parameters or a MongoId
 	 *
 	 * @return array
 	 */
 	protected static function handleParameters($p)
 	{
-		// Assume it's a MongoId
-		if (is_string($p) && strlen($p) === 24 && ctype_xdigit($p)) {
-			return array('_id' => new MongoId($p));
-		} elseif ($p instanceof MongoId) {
+		if ($p instanceof MongoId) {
 			return array('_id' => $p);
 		}
 		

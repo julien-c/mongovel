@@ -4,14 +4,14 @@ require_once '_start.php';
 
 class ModelTest extends MongovelTests
 {
-	public function testCanFindOneByIdString()
+	public function testCanFindOneById()
 	{
 		self::$db->db()->books->insert(array(
 			'_id'   => new MongoId('512ce86b98dee4a87a000000'),
 			'title' => "My life"
 		));
 		
-		$book = Book::findOne('512ce86b98dee4a87a000000');
+		$book = Book::findOne(new MongoId('512ce86b98dee4a87a000000'));
 		$this->assertEquals("My life", $book->title);
 		$this->assertEquals('512ce86b98dee4a87a000000', $book->id);
 		$this->assertEquals(new MongoId('512ce86b98dee4a87a000000'), $book->_id);
@@ -34,7 +34,7 @@ class ModelTest extends MongovelTests
 	public function testFindOneOrFailThrowModelNotFound()
 	{
 		$this->setExpectedException('Mongovel\ModelNotFoundException');
-		Book::findOneOrFail('000000000000000000000000');
+		Book::findOneOrFail(new MongoId('000000000000000000000000'));
 	}
 	
 	public function testCanFindAllDocuments()

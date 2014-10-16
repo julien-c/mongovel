@@ -23,7 +23,7 @@ class Book extends MongovelModel
 ```php
 public function show($id)
 {
-	$book = Book::findOne($id);
+	$book = Book::findOne(new MongoId($id));
 
 	// Here, you can access the book's attributes like in Eloquent:
 	// $book->title, $book->reviews, etc.
@@ -35,7 +35,7 @@ public function show($id)
 }
 ```
 
-Mongovel detects that `$id` is the string representation for a MongoId, and returns an object that will be automatically serialized and sent as JSON by Laravel.
+Mongovel detects that `$id` is a MongoId, and returns an object that will be automatically serialized and sent as JSON by Laravel.
 
 **`POST books`**:
 
@@ -58,7 +58,7 @@ public function reviewStore($id)
 	$review = Input::all();
 
 	// You can leverage the full power of Mongo query operators:
-	Book::update($id,
+	Book::update(new MongoId($id),
 		array('$push' => array('reviews' => $reviews))
 	);
 
@@ -70,7 +70,7 @@ Deleting a book is as simple as:
 ```php
 public function destroy($id)
 {
-	Book::remove($id);
+	Book::remove(new MongoId($id));
 }
 ```
 
