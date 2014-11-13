@@ -116,6 +116,8 @@ Finally, add a MongoDB hash at the end of your `app/config/database.php` (so, ou
 
 If needed (for MongoHq and the likes), you can specify a `username` and `password` in this array as well.
 
+Any other options will be added as GET parameters to the DSN.
+
 ### Authentification
 
 To use Mongovel as your Auth provided, you'll simply need to go in the `app/config/auth.php` file and set `mongo` as your driver.
