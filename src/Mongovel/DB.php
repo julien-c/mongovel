@@ -55,10 +55,24 @@ class DB
 			$this->database = $dsn['database'];
 			
 			if (isset($dsn['username']) && isset($dsn['password'])) {
-				$this->server = sprintf('mongodb://%s:%s@%s:%d/%s', $dsn['username'], $dsn['password'], $dsn['host'], $dsn['port'], $dsn['database']);
+				$this->server = sprintf('mongodb://%s:%s@%s:%d/%s/', $dsn['username'], $dsn['password'], $dsn['host'], $dsn['port'], $dsn['database']);
 			}
 			else {
-				$this->server = sprintf('mongodb://%s:%d', $dsn['host'], $dsn['port']);
+				$this->server = sprintf('mongodb://%s:%d/', $dsn['host'], $dsn['port']);
+			}
+			
+			$options = array_diff_key($dsn, array(
+				'host'     => true,
+				'port'     => true,
+				'database' => true,
+				'username' => true,
+				'password' => true,
+			));
+			$options = array_map(function($key, $value) {
+				return $key . '=' . $value;
+			}, array_keys($options), array_values($options));
+			if ($options) {
+				$this->server .= '?' . implode('&', $options);
 			}
 		}
 	}
