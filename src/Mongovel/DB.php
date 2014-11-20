@@ -26,11 +26,11 @@ class DB
 	 */
 	public $database;
 	
-	public function __construct($server = null, $database = null)
+	public function __construct($server = null, $database = null, $options = null)
 	{
 		$this->connection = 'default';
 		
-		$this->setDatabaseDSN($server, $database);
+		$this->setDatabaseDSN($server, $database, $options);
 	}
 	
 	public function setConnection($name)
@@ -40,40 +40,43 @@ class DB
 		$this->setDatabaseDSN();
 	}
 	
-	public function setDatabaseDSN($server = null, $database = null)
+	public function setDatabaseDSN($server = null, $database = null, $options = null)
 	{
 		if (!is_null($server)) {
-			$this->server   = $server;
-			$this->database = $database;
+			$dsn             = $options ?: array();
+			$dsn['server']   = $server;
+			$dsn['database'] = $database;
 		}
 		else {
 			// Fetch config data:
-			
 			$dsn = Mongovel::getContainer('config')->get('database.mongodb.' . $this->connection);
-			
-			$this->dsn      = $dsn;
-			$this->database = $dsn['database'];
-			
-			if (isset($dsn['username']) && isset($dsn['password'])) {
-				$this->server = sprintf('mongodb://%s:%s@%s:%d/%s/', $dsn['username'], $dsn['password'], $dsn['host'], $dsn['port'], $dsn['database']);
-			}
-			else {
-				$this->server = sprintf('mongodb://%s:%d/', $dsn['host'], $dsn['port']);
-			}
-			
-			$options = array_diff_key($dsn, array(
-				'host'     => true,
-				'port'     => true,
-				'database' => true,
-				'username' => true,
-				'password' => true,
-			));
-			$options = array_map(function($key, $value) {
-				return $key . '=' . $value;
-			}, array_keys($options), array_values($options));
-			if ($options) {
-				$this->server .= '?' . implode('&', $options);
-			}
+		}
+		
+		$this->dsn      = $dsn;
+		$this->database = array_pull($dsn, 'database');
+		
+		if (isset($dsn['username']) && isset($dsn['password'])) {
+			$this->server = sprintf(
+				'mongodb://%s:%s@%s:%d/%s/',
+				array_pull($dsn, 'username'),
+				array_pull($dsn, 'password'),
+				array_pull($dsn, 'host'),
+				array_pull($dsn, 'port'),
+				$this->database
+			);
+		}
+		else {
+			$this->server = sprintf(
+				'mongodb://%s:%d/',
+				array_pull($dsn, 'host'),
+				array_pull($dsn, 'port')
+			);
+		}
+		
+		$this->options = $dsn;
+		
+		if (!isset($this->options['connect'])) {
+			$this->options['connect'] = true;
 		}
 	}
 	
@@ -89,7 +92,7 @@ class DB
 	 */
 	public function db()
 	{
-		$m = new MongoClient($this->server);
+		$m = new MongoClient($this->server, $this->options);
 		
 		return $m->{$this->database};
 	}
