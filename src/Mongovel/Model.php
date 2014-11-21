@@ -238,6 +238,16 @@ class Model implements ArrayableInterface, JsonableInterface
 		
 		return new Collection($items);
 	}
+	
+	public static function initializeUnorderedBulkOp()
+	{
+		return new Bulk(static::getCollection(), ['ordered' => false]);
+	}
+
+	public static function initializeOrderedBulkOp()
+	{
+		return new Bulk(static::getCollection(), ['ordered' => true]);
+	}
 
 	////////////////////////////////////////////////////////////////////
 	/////////////////////////// SERIALIZATION //////////////////////////

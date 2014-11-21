@@ -90,6 +90,33 @@ public function index()
 }
 ```
 
+#### Bulk operations
+
+In order to make bulk operations less painful, Mongovel implements the [standard bulk interface](http://docs.mongodb.org/manual/reference/method/js-bulk/):
+```php
+$bulk = Book::initializeOrderedBulk();
+
+$bulk->insert(array('author' => 'Me', 'title' => 'My life'));
+
+$bulk->find(array('author' => 'Me'))
+     ->update(array('$push' => array('reviews' => "Awesome!")));
+
+$bulk->find(array('title' => 'My life'))
+     ->updateOne(array('$push' => array('reviews' => "Incredible!")));
+
+$bulk->find(array('title' => 'My life, II'))
+     ->upsert()
+     ->update(array('$push' => array('reviews' => "Can't wait!")));
+
+$bulk->find(array('author' => 'Not me'))
+     ->remove();
+
+$bulk->find(array('title' => 'My life, II'))
+     ->removeOne();
+
+$bulk->execute();
+```
+
 ### How to install
 
 Add `julien-c/mongovel` as a requirement to composer.json, then run `composer update`.
