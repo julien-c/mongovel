@@ -13,7 +13,7 @@ class BulkTest extends MongovelTests
 		$bulk->insert(array('key' => "B"));
 		$bulk->execute();
 		
-		$this->assert(["A", "B"]);
+		$this->assert(array("A", "B"));
 	}
 	
 	public function testCanBulkUpdateMultiple()
@@ -25,7 +25,7 @@ class BulkTest extends MongovelTests
 		     ->update(array('$set' => array('key' => "C")));
 		$bulk->execute();
 		
-		$this->assert(["A", "C", "C"]);
+		$this->assert(array("A", "C", "C"));
 	}
 	
 	public function testCanBulkUpdateOne()
@@ -37,7 +37,7 @@ class BulkTest extends MongovelTests
 		     ->updateOne(array('$set' => array('key' => "C")));
 		$bulk->execute();
 		
-		$this->assert(["A", "C", "B"]);
+		$this->assert(array("A", "C", "B"));
 	}
 	
 	public function testCanBulkUpsert()
@@ -50,7 +50,7 @@ class BulkTest extends MongovelTests
 		     ->updateOne(array('$set' => array('key' => "C")));
 		$bulk->execute();
 		
-		$this->assert(["A", "B", "B", "C"]);
+		$this->assert(array("A", "B", "B", "C"));
 	}
 	
 	public function testCanBulkRemove()
@@ -62,7 +62,7 @@ class BulkTest extends MongovelTests
 		     ->remove();
 		$bulk->execute();
 		
-		$this->assert(["A"]);
+		$this->assert(array("A"));
 	}
 	
 	public function testCanBulkRemoveOne()
@@ -74,7 +74,7 @@ class BulkTest extends MongovelTests
 		     ->removeOne();
 		$bulk->execute();
 		
-		$this->assert(["A", "B"]);
+		$this->assert(array("A", "B"));
 	}
 	
 	public function testOrderedBulk()
@@ -88,7 +88,7 @@ class BulkTest extends MongovelTests
 		     ->update(array('$set' => array('key' => "B")));
 		$bulk->execute();
 		
-		$this->assert(["B", "C", "C"]);
+		$this->assert(array("B", "C", "C"));
 	}
 	
 	public function assert($vals)

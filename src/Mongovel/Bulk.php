@@ -29,10 +29,10 @@ class Bulk
 		return $this->_add('insert', $doc);
 	}
 	
-	public function _add($operation, ...$args)
+	public function _add($operation, $arg)
 	{
 		$this->bulks[$operation][0] = true;
-		$this->bulks[$operation][1]->add(...$args);
+		$this->bulks[$operation][1]->add($arg);
 	}
 	
 	public function execute()
