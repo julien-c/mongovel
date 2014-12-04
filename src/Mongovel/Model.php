@@ -241,12 +241,12 @@ class Model implements ArrayableInterface, JsonableInterface
 	
 	public static function initializeUnorderedBulkOp()
 	{
-		return new Bulk(static::getCollection(), ['ordered' => false]);
+		return new Bulk(static::getCollection(), array('ordered' => false));
 	}
 
 	public static function initializeOrderedBulkOp()
 	{
-		return new Bulk(static::getCollection(), ['ordered' => true]);
+		return new Bulk(static::getCollection(), array('ordered' => true));
 	}
 
 	////////////////////////////////////////////////////////////////////
