@@ -13,9 +13,9 @@ class Bulk
 	{
 		$this->bulks = array(
 			// operation => [hasOne, phpBatch]
-			'insert' => [false, new MongoInsertBatch($collection, $options)],
-			'update' => [false, new MongoUpdateBatch($collection, $options)],
-			'remove' => [false, new MongoDeleteBatch($collection, $options)],
+			'insert' => array(false, new MongoInsertBatch($collection, $options)),
+			'update' => array(false, new MongoUpdateBatch($collection, $options)),
+			'remove' => array(false, new MongoDeleteBatch($collection, $options)),
 		);
 	}
 	
