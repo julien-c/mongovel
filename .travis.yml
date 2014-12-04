@@ -13,6 +13,10 @@ matrix:
 
 services: mongodb
 
+before_install:
+  - composer self-update
+  - mongo --version
+
 before_script:
   - echo "extension = mongo.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
   - composer install --dev
